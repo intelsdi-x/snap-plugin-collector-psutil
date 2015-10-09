@@ -1,0 +1,16 @@
+{
+	"ImportPath": "github.com/intelsdi-x/pulse-plugin-collector-psutil",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/shirou/gopsutil",
+			"Comment": "1.0.0-64-g64357f0",
+			"Rev": "64357f04e785f61a86d993e486b0f9be54d44cb7"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/pulse",
+			"Comment": "HEAD",
+			"Rev": "9b123c20191505aabd56d72bb0a858fdc618ea14"
+		}
+	]
+}
