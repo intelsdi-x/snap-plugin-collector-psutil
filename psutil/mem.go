@@ -14,57 +14,57 @@ func virtualMemory(ns []string) (*plugin.PluginMetricType, error) {
 	}
 
 	switch joinNamespace(ns) {
-	case "/psutil/vm/total":
+	case "/intel/psutil/vm/total":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Total,
 		}, nil
-	case "/psutil/vm/available":
+	case "/intel/psutil/vm/available":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Available,
 		}, nil
-	case "/psutil/vm/used":
+	case "/intel/psutil/vm/used":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Used,
 		}, nil
-	case "/psutil/vm/used_percent":
+	case "/intel/psutil/vm/used_percent":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.UsedPercent,
 		}, nil
-	case "/psutil/vm/free":
+	case "/intel/psutil/vm/free":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Free,
 		}, nil
-	case "/psutil/vm/active":
+	case "/intel/psutil/vm/active":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Active,
 		}, nil
-	case "/psutil/vm/inactive":
+	case "/intel/psutil/vm/inactive":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Inactive,
 		}, nil
-	case "/psutil/vm/buffers":
+	case "/intel/psutil/vm/buffers":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Buffers,
 		}, nil
-	case "/psutil/vm/cached":
+	case "/intel/psutil/vm/cached":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Cached,
 		}, nil
-	case "/psutil/vm/wired":
+	case "/intel/psutil/vm/wired":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Wired,
 		}, nil
-	case "/psutil/vm/shared":
+	case "/intel/psutil/vm/shared":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      mem.Shared,
@@ -78,7 +78,7 @@ func getVirtualMemoryMetricTypes() []plugin.PluginMetricType {
 	t := []string{"total", "available", "used", "used_percent", "free", "active", "inactive", "buffers", "cached", "wired", "shared"}
 	mts := make([]plugin.PluginMetricType, len(t))
 	for i, te := range t {
-		mts[i] = plugin.PluginMetricType{Namespace_: []string{"psutil", "vm", te}}
+		mts[i] = plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "vm", te}}
 	}
 	return mts
 }

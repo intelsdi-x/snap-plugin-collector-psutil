@@ -14,17 +14,17 @@ func loadAvg(ns []string) (*plugin.PluginMetricType, error) {
 	}
 
 	switch joinNamespace(ns) {
-	case "/psutil/load/load1":
+	case "/intel/psutil/load/load1":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      load.Load1,
 		}, nil
-	case "/psutil/load/load5":
+	case "/intel/psutil/load/load5":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      load.Load5,
 		}, nil
-	case "/psutil/load/load15":
+	case "/intel/psutil/load/load15":
 		return &plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      load.Load15,
@@ -38,7 +38,7 @@ func getLoadAvgMetricTypes() []plugin.PluginMetricType {
 	t := []string{"load1", "load5", "load15"}
 	mts := make([]plugin.PluginMetricType, len(t))
 	for i, te := range t {
-		mts[i] = plugin.PluginMetricType{Namespace_: []string{"psutil", "load", te}}
+		mts[i] = plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "load", te}}
 	}
 	return mts
 }

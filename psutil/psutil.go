@@ -29,10 +29,10 @@ type Psutil struct {
 func (p *Psutil) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
 	hostname, _ := os.Hostname()
 	metrics := make([]plugin.PluginMetricType, len(mts))
-	loadre := regexp.MustCompile(`^/psutil/load/load[1,5,15]`)
-	cpure := regexp.MustCompile(`^/psutil/cpu.*/.*`)
-	memre := regexp.MustCompile(`^/psutil/vm/.*`)
-	netre := regexp.MustCompile(`^/psutil/net/.*`)
+	loadre := regexp.MustCompile(`^/intel/psutil/load/load[1,5,15]`)
+	cpure := regexp.MustCompile(`^/intel/psutil/cpu.*/.*`)
+	memre := regexp.MustCompile(`^/intel/psutil/vm/.*`)
+	netre := regexp.MustCompile(`^/intel/psutil/net/.*`)
 
 	for i, p := range mts {
 		ns := joinNamespace(p.Namespace())
