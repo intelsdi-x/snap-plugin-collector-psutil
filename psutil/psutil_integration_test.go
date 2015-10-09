@@ -1,3 +1,6 @@
+//
+// +build integration
+
 package psutil
 
 import (
@@ -14,31 +17,29 @@ func TestPsutilCollectMetrics(t *testing.T) {
 		Convey("collect metrics", func() {
 			mts := []plugin.PluginMetricType{
 				plugin.PluginMetricType{
-					Namespace_: []string{"psutil", "load", "load1"},
+					Namespace_: []string{"intel", "psutil", "load", "load1"},
 				},
 				plugin.PluginMetricType{
-					Namespace_: []string{"psutil", "load", "load5"},
+					Namespace_: []string{"intel", "psutil", "load", "load5"},
 				},
 				plugin.PluginMetricType{
-					Namespace_: []string{"psutil", "load", "load15"},
+					Namespace_: []string{"intel", "psutil", "load", "load15"},
 				},
 				plugin.PluginMetricType{
-					Namespace_: []string{"psutil", "vm", "total"},
+					Namespace_: []string{"intel", "psutil", "vm", "total"},
 				},
 			}
 			if runtime.GOOS != "darwin" {
 				mts = append(mts, plugin.PluginMetricType{
-					Namespace_: []string{"psutil", "cpu0", "user"},
+					Namespace_: []string{"intel", "psutil", "cpu0", "user"},
 				})
 			}
 			metrics, err := p.CollectMetrics(mts)
-			//prettyPrint(metrics)
 			So(err, ShouldBeNil)
 			So(metrics, ShouldNotBeNil)
 		})
 		Convey("get metric types", func() {
 			mts, err := p.GetMetricTypes()
-			//prettyPrint(mts)
 			So(err, ShouldBeNil)
 			So(mts, ShouldNotBeNil)
 		})
