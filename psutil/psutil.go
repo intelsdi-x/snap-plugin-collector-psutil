@@ -15,12 +15,20 @@ import (
 
 const (
 	// Name of plugin
-	Name = "psutil"
+	name = "psutil"
 	// Version of plugin
-	Version = 2
+	version = 2
 	// Type of plugin
-	Type = plugin.CollectorPluginType
+	pluginType = plugin.CollectorPluginType
 )
+
+func Meta() *plugin.PluginMeta {
+	return plugin.NewPluginMeta(name, version, pluginType, []string{plugin.PulseGOBContentType}, []string{plugin.PulseGOBContentType})
+}
+
+func NewPsutilCollector() *Psutil {
+	return &Psutil{}
+}
 
 type Psutil struct {
 }
