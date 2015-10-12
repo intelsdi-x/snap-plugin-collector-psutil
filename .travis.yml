@@ -1,6 +1,4 @@
-sudo: required
-services:
-- docker
+sudo: false
 language: go
 go:
 - 1.4.2
