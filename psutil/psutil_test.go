@@ -24,7 +24,7 @@ func TestPSUtilPlugin(t *testing.T) {
 		Convey("So psCol should not be nil", func() {
 			So(psCol, ShouldNotBeNil)
 		})
-		Convey("So ip should be of Psutil type", func() {
+		Convey("So psCol should be of Psutil type", func() {
 			So(psCol, ShouldHaveSameTypeAs, &Psutil{})
 		})
 		Convey("psCol.GetConfigPolicy() should return a config policy", func() {
