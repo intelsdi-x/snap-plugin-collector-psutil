@@ -35,7 +35,7 @@ const (
 	// Name of plugin
 	name = "psutil"
 	// Version of plugin
-	version = 2
+	version = 3
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 )
@@ -96,7 +96,7 @@ func (p *Psutil) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginM
 }
 
 // GetMetricTypes returns the metric types exposed by gopsutil
-func (p *Psutil) GetMetricTypes() ([]plugin.PluginMetricType, error) {
+func (p *Psutil) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
 	mts := []plugin.PluginMetricType{}
 
 	mts = append(mts, getLoadAvgMetricTypes()...)
