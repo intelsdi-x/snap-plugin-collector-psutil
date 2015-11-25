@@ -27,8 +27,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/intelsdi-x/pulse/control/plugin"
-	"github.com/intelsdi-x/pulse/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
 )
 
 const (
@@ -41,7 +41,7 @@ const (
 )
 
 func Meta() *plugin.PluginMeta {
-	return plugin.NewPluginMeta(name, version, pluginType, []string{plugin.PulseGOBContentType}, []string{plugin.PulseGOBContentType})
+	return plugin.NewPluginMeta(name, version, pluginType, []string{plugin.SnapGOBContentType}, []string{plugin.SnapGOBContentType})
 }
 
 func NewPsutilCollector() *Psutil {
@@ -127,7 +127,7 @@ func joinNamespace(ns []string) string {
 
 func prettyPrint(mts []plugin.PluginMetricType) error {
 	var out bytes.Buffer
-	mtsb, _, _ := plugin.MarshalPluginMetricTypes(plugin.PulseJSONContentType, mts)
+	mtsb, _, _ := plugin.MarshalPluginMetricTypes(plugin.SnapJSONContentType, mts)
 	if err := json.Indent(&out, mtsb, "", "  "); err != nil {
 		return err
 	}

@@ -1,2 +1,2 @@
-# pulse-plugin-collector-psutil
-Pulse Plugin for collecting from psutil
+# snap-plugin-collector-psutil
+Snap Plugin for collecting from psutil
