@@ -28,7 +28,7 @@ All OSs currently supported by snap:
 
 ### Installation
 #### Download psutil plugin binary:
-TBD, plugin binaries are not yet available. 
+You can get the pre-built binaries for your OS and architecture at snap's [GitHub Releases](https://github.com/intelsdi-x/snap/releases) page.
 
 #### To build the plugin binary:
 Fork https://github.com/intelsdi-x/snap-plugin-collector-psutil  
