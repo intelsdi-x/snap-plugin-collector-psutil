@@ -35,7 +35,7 @@ const (
 	// Name of plugin
 	name = "psutil"
 	// Version of plugin
-	version = 5
+	version = 6
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 )
