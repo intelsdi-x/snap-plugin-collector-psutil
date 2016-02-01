@@ -104,7 +104,8 @@ func getCPUTimesMetricTypes() ([]plugin.PluginMetricType, error) {
 	//passing true to CPUTimes indicates per CPU
 	//CPUTimes does not currently work on OSX https://github.com/shirou/gopsutil/issues/31
 	mts := make([]plugin.PluginMetricType, 0)
-	if runtime.GOOS != "darwin" {
+	switch runtime.GOOS {
+	case "linux":
 		c, err := cpu.CPUTimes(true)
 		if err != nil {
 			return nil, err
@@ -114,6 +115,16 @@ func getCPUTimesMetricTypes() ([]plugin.PluginMetricType, error) {
 				mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", i.CPU, label}})
 			}
 		}
+	case "windows":
+		_, err := cpu.CPUTimes(true)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, label := range []string{"idle", "system", "user"} {
+			mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "cpu", label}})
+		}
+
 	}
 	return mts, nil
 }
