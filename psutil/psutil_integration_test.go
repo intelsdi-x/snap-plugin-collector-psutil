@@ -36,21 +36,21 @@ func TestPsutilCollectMetrics(t *testing.T) {
 		Convey("collect metrics", func() {
 			mts := []plugin.MetricType{
 				plugin.MetricType{
-					Namespace_: core.NewNamespace([]string{"intel", "psutil", "load", "load1"}),
+					Namespace_: core.NewNamespace("intel", "psutil", "load", "load1"),
 				},
 				plugin.MetricType{
-					Namespace_: core.NewNamespace([]string{"intel", "psutil", "load", "load5"}),
+					Namespace_: core.NewNamespace("intel", "psutil", "load", "load5"),
 				},
 				plugin.MetricType{
-					Namespace_: core.NewNamespace([]string{"intel", "psutil", "load", "load15"}),
+					Namespace_: core.NewNamespace("intel", "psutil", "load", "load15"),
 				},
 				plugin.MetricType{
-					Namespace_: core.NewNamespace([]string{"intel", "psutil", "vm", "total"}),
+					Namespace_: core.NewNamespace("intel", "psutil", "vm", "total"),
 				},
 			}
 			if runtime.GOOS != "darwin" {
 				mts = append(mts, plugin.MetricType{
-					Namespace_: core.NewNamespace([]string{"intel", "psutil", "cpu0", "user"}),
+					Namespace_: core.NewNamespace("intel", "psutil", "cpu0", "user"),
 				})
 			}
 			metrics, err := p.CollectMetrics(mts)

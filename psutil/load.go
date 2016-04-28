@@ -61,7 +61,7 @@ func getLoadAvgMetricTypes() []plugin.MetricType {
 	mts := make([]plugin.MetricType, len(t))
 	for i, te := range t {
 		mts[i] = plugin.MetricType{
-			Namespace_: core.NewNamespace([]string{"intel", "psutil", "load", fmt.Sprintf("load%d", te)}),
+			Namespace_: core.NewNamespace("intel", "psutil", "load", fmt.Sprintf("load%d", te)),
 			Unit_:      fmt.Sprintf("Load/%dM", te),
 		}
 	}
