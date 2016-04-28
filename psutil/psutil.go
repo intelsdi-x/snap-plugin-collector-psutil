@@ -22,7 +22,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -52,43 +51,40 @@ type Psutil struct {
 }
 
 // CollectMetrics returns metrics from gopsutil
-func (p *Psutil) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
-	hostname, _ := os.Hostname()
-	metrics := make([]plugin.PluginMetricType, len(mts))
+func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
+	metrics := make([]plugin.MetricType, len(mts))
 	loadre := regexp.MustCompile(`^/intel/psutil/load/load[1,5,15]`)
 	cpure := regexp.MustCompile(`^/intel/psutil/cpu.*/.*`)
 	memre := regexp.MustCompile(`^/intel/psutil/vm/.*`)
 	netre := regexp.MustCompile(`^/intel/psutil/net/.*`)
 
 	for i, p := range mts {
-		ns := joinNamespace(p.Namespace())
 		switch {
-		case loadre.MatchString(ns):
+		case loadre.MatchString(p.Namespace().String()):
 			metric, err := loadAvg(p.Namespace())
 			if err != nil {
 				return nil, err
 			}
 			metrics[i] = *metric
-		case cpure.MatchString(ns):
+		case cpure.MatchString(p.Namespace().String()):
 			metric, err := cpuTimes(p.Namespace())
 			if err != nil {
 				return nil, err
 			}
 			metrics[i] = *metric
-		case memre.MatchString(ns):
+		case memre.MatchString(p.Namespace().String()):
 			metric, err := virtualMemory(p.Namespace())
 			if err != nil {
 				return nil, err
 			}
 			metrics[i] = *metric
-		case netre.MatchString(ns):
+		case netre.MatchString(p.Namespace().String()):
 			metric, err := netIOCounters(p.Namespace())
 			if err != nil {
 				return nil, err
 			}
 			metrics[i] = *metric
 		}
-		metrics[i].Source_ = hostname
 		metrics[i].Timestamp_ = time.Now()
 
 	}
@@ -96,8 +92,8 @@ func (p *Psutil) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginM
 }
 
 // GetMetricTypes returns the metric types exposed by gopsutil
-func (p *Psutil) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
-	mts := []plugin.PluginMetricType{}
+func (p *Psutil) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error) {
+	mts := []plugin.MetricType{}
 
 	mts = append(mts, getLoadAvgMetricTypes()...)
 	mts_, err := getCPUTimesMetricTypes()
@@ -125,9 +121,9 @@ func joinNamespace(ns []string) string {
 	return "/" + strings.Join(ns, "/")
 }
 
-func prettyPrint(mts []plugin.PluginMetricType) error {
+func prettyPrint(mts []plugin.MetricType) error {
 	var out bytes.Buffer
-	mtsb, _, _ := plugin.MarshalPluginMetricTypes(plugin.SnapJSONContentType, mts)
+	mtsb, _, _ := plugin.MarshalMetricTypes(plugin.SnapJSONContentType, mts)
 	if err := json.Indent(&out, mtsb, "", "  "); err != nil {
 		return err
 	}

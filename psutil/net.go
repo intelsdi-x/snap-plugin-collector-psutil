@@ -23,6 +23,7 @@ import (
 	"regexp"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/shirou/gopsutil/net"
 )
 
@@ -37,51 +38,51 @@ var netIOCounterLabels = []string{
 	"dropout",
 }
 
-func netIOCounters(ns []string) (*plugin.PluginMetricType, error) {
-	nets, err := net.NetIOCounters(true)
+func netIOCounters(ns core.Namespace) (*plugin.MetricType, error) {
+	nets, err := net.IOCounters(true)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, net := range nets {
 		switch {
-		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_sent$`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_sent$`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.BytesSent,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_recv`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_recv`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.BytesRecv,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_sent`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_sent`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.BytesSent,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_recv`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_recv`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.BytesRecv,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/errin`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/errin`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.Errin,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/errout`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/errout`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.Errout,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/dropin`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/dropin`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.Dropin,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/dropout`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/net/.*/dropout`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      net.Dropout,
 			}, nil
@@ -91,24 +92,24 @@ func netIOCounters(ns []string) (*plugin.PluginMetricType, error) {
 	return nil, fmt.Errorf("Unknown error processing %v", ns)
 }
 
-func getNetIOCounterMetricTypes() ([]plugin.PluginMetricType, error) {
-	mts := make([]plugin.PluginMetricType, 0)
-	nets, err := net.NetIOCounters(false)
+func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
+	mts := make([]plugin.MetricType, 0)
+	nets, err := net.IOCounters(false)
 	if err != nil {
 		return nil, err
 	}
 	//total for all nics
 	for _, name := range netIOCounterLabels {
-		mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "net", nets[0].Name, name}})
+		mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace([]string{"intel", "psutil", "net", nets[0].Name, name})})
 	}
 	//per nic
-	nets, err = net.NetIOCounters(true)
+	nets, err = net.IOCounters(true)
 	if err != nil {
 		return nil, err
 	}
 	for _, net := range nets {
 		for _, name := range netIOCounterLabels {
-			mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "net", net.Name, name}})
+			mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace([]string{"intel", "psutil", "net", net.Name, name})})
 		}
 	}
 	return mts, nil
