@@ -130,3 +130,8 @@ func prettyPrint(mts []plugin.MetricType) error {
 	fmt.Println(out.String())
 	return nil
 }
+
+type label struct {
+	description string
+	unit        string
+}

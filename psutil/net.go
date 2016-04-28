@@ -27,15 +27,39 @@ import (
 	"github.com/shirou/gopsutil/net"
 )
 
-var netIOCounterLabels = []string{
-	"bytes_sent",
-	"bytes_recv",
-	"packets_sent",
-	"packets_recv",
-	"errin",
-	"errout",
-	"dropin",
-	"dropout",
+var netIOCounterLabels = map[string]label{
+	"bytes_sent": label{
+		unit:        "",
+		description: "",
+	},
+	"bytes_recv": label{
+		unit:        "",
+		description: "",
+	},
+	"packets_sent": label{
+		unit:        "",
+		description: "",
+	},
+	"packets_recv": label{
+		unit:        "",
+		description: "",
+	},
+	"errin": label{
+		unit:        "",
+		description: "",
+	},
+	"errout": label{
+		unit:        "",
+		description: "",
+	},
+	"dropin": label{
+		unit:        "",
+		description: "",
+	},
+	"dropout": label{
+		unit:        "",
+		description: "",
+	},
 }
 
 func netIOCounters(ns core.Namespace) (*plugin.MetricType, error) {
@@ -99,8 +123,12 @@ func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
 		return nil, err
 	}
 	//total for all nics
-	for _, name := range netIOCounterLabels {
-		mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace([]string{"intel", "psutil", "net", nets[0].Name, name})})
+	for name, label := range netIOCounterLabels {
+		mts = append(mts, plugin.MetricType{
+			Namespace_:   core.NewNamespace("intel", "psutil", "net", nets[0].Name, name),
+			Description_: label.description,
+			Unit_:        label.unit,
+		})
 	}
 	//per nic
 	nets, err = net.IOCounters(true)
@@ -108,8 +136,12 @@ func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
 		return nil, err
 	}
 	for _, net := range nets {
-		for _, name := range netIOCounterLabels {
-			mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace([]string{"intel", "psutil", "net", net.Name, name})})
+		for name, label := range netIOCounterLabels {
+			mts = append(mts, plugin.MetricType{
+				Namespace_:   core.NewNamespace("intel", "psutil", "net", net.Name, name),
+				Description_: label.description,
+				Unit_:        label.unit,
+			})
 		}
 	}
 	return mts, nil
