@@ -22,41 +22,48 @@ import (
 	"fmt"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/shirou/gopsutil/load"
 )
 
-func loadAvg(ns []string) (*plugin.PluginMetricType, error) {
-	load, err := load.LoadAvg()
+func loadAvg(ns core.Namespace) (*plugin.MetricType, error) {
+	load, err := load.Avg()
 	if err != nil {
 		return nil, err
 	}
 
-	switch joinNamespace(ns) {
+	switch ns.String() {
 	case "/intel/psutil/load/load1":
-		return &plugin.PluginMetricType{
+		return &plugin.MetricType{
 			Namespace_: ns,
 			Data_:      load.Load1,
+			Unit_:      "Load/1M",
 		}, nil
 	case "/intel/psutil/load/load5":
-		return &plugin.PluginMetricType{
+		return &plugin.MetricType{
 			Namespace_: ns,
 			Data_:      load.Load5,
+			Unit_:      "Load/5M",
 		}, nil
 	case "/intel/psutil/load/load15":
-		return &plugin.PluginMetricType{
+		return &plugin.MetricType{
 			Namespace_: ns,
 			Data_:      load.Load15,
+			Unit_:      "Load/15M",
 		}, nil
 	}
 
 	return nil, fmt.Errorf("Unknown error processing %v", ns)
 }
 
-func getLoadAvgMetricTypes() []plugin.PluginMetricType {
-	t := []string{"load1", "load5", "load15"}
-	mts := make([]plugin.PluginMetricType, len(t))
+func getLoadAvgMetricTypes() []plugin.MetricType {
+	t := []int{1, 5, 15}
+	mts := make([]plugin.MetricType, len(t))
 	for i, te := range t {
-		mts[i] = plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "load", te}}
+		mts[i] = plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "psutil", "load", fmt.Sprintf("load%d", te)),
+			Unit_:      fmt.Sprintf("Load/%dM", te),
+		}
 	}
 	return mts
 }

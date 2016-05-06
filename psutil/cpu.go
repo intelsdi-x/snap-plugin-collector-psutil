@@ -24,74 +24,129 @@ import (
 	"runtime"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/shirou/gopsutil/cpu"
 )
 
-var cpuLabels = []string{"user", "system", "idle", "nice", "iowait",
-	"irq", "softirq", "steal", "guest", "guest_nice", "stolen"}
+var cpuLabels = map[string]label{
+	"user": label{
+		description: "",
+		unit:        "",
+	},
+	"system": label{
+		description: "",
+		unit:        "",
+	},
+	"idle": label{
+		description: "",
+		unit:        "",
+	},
+	"nice": label{
+		description: "",
+		unit:        "",
+	},
+	"iowait": label{
+		description: "",
+		unit:        "",
+	},
+	"irq": label{
+		description: "",
+		unit:        "",
+	},
+	"softirq": label{
+		description: "",
+		unit:        "",
+	},
+	"steal": label{
+		description: "",
+		unit:        "",
+	},
+	"guest": label{
+		description: "",
+		unit:        "",
+	},
+	"guest_nice": label{
+		description: "",
+		unit:        "",
+	},
+	"stolen": label{
+		description: "",
+		unit:        "",
+	},
+}
 
-func cpuTimes(ns []string) (*plugin.PluginMetricType, error) {
-	cpus, err := cpu.CPUTimes(true)
+func cpuTimes(ns core.Namespace) (*plugin.MetricType, error) {
+	cpus, err := cpu.Times(true)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, cpu := range cpus {
 		switch {
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/user`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/user`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.User,
+				Unit_:      cpuLabels["cpu"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/system`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/system`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.System,
+				Unit_:      cpuLabels["system"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/idle`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/idle`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
-				Data_:      cpu.Idle,
+				Unit_:      cpuLabels["idle"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/nice`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/nice`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Nice,
+				Unit_:      cpuLabels["nice"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/iowait`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/iowait`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Iowait,
+				Unit_:      cpuLabels["iowait"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/irq`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/irq`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Irq,
+				Unit_:      cpuLabels["irq"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/softirq`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/softirq`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Softirq,
+				Unit_:      cpuLabels["softirq"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/steal`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/steal`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Steal,
+				Unit_:      cpuLabels["steal"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/guest`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/guest`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Guest,
+				Unit_:      cpuLabels["guest"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/guest_nice`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/guest_nice`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.GuestNice,
+				Unit_:      cpuLabels["guest_nice"].unit,
 			}, nil
-		case regexp.MustCompile(`^/intel/psutil/cpu.*/stolen`).MatchString(joinNamespace(ns)):
-			return &plugin.PluginMetricType{
+		case regexp.MustCompile(`^/intel/psutil/cpu.*/stolen`).MatchString(ns.String()):
+			return &plugin.MetricType{
 				Namespace_: ns,
 				Data_:      cpu.Stolen,
+				Unit_:      cpuLabels["stolen"].unit,
 			}, nil
 		}
 
@@ -100,29 +155,37 @@ func cpuTimes(ns []string) (*plugin.PluginMetricType, error) {
 	return nil, fmt.Errorf("Unknown error processing %v", ns)
 }
 
-func getCPUTimesMetricTypes() ([]plugin.PluginMetricType, error) {
+func getCPUTimesMetricTypes() ([]plugin.MetricType, error) {
 	//passing true to CPUTimes indicates per CPU
 	//CPUTimes does not currently work on OSX https://github.com/shirou/gopsutil/issues/31
-	mts := make([]plugin.PluginMetricType, 0)
+	mts := []plugin.MetricType{}
 	switch runtime.GOOS {
 	case "linux":
-		c, err := cpu.CPUTimes(true)
+		c, err := cpu.Times(true)
 		if err != nil {
 			return nil, err
 		}
 		for _, i := range c {
-			for _, label := range cpuLabels {
-				mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", i.CPU, label}})
+			for k, label := range cpuLabels {
+				mts = append(mts, plugin.MetricType{
+					Namespace_:   core.NewNamespace("intel", "psutil", i.CPU, k),
+					Description_: label.description,
+					Unit_:        label.unit,
+				})
 			}
 		}
 	case "windows":
-		_, err := cpu.CPUTimes(true)
+		_, err := cpu.Times(true)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, label := range []string{"idle", "system", "user"} {
-			mts = append(mts, plugin.PluginMetricType{Namespace_: []string{"intel", "psutil", "cpu", label}})
+			mts = append(mts, plugin.MetricType{
+				Namespace_:   core.NewNamespace("intel", "psutil", "cpu", label),
+				Description_: cpuLabels[label].description,
+				Unit_:        cpuLabels[label].unit,
+			})
 		}
 
 	}
