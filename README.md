@@ -17,9 +17,10 @@ It's used in the [snap framework](http://github.com:intelsdi-x/snap).
 6. [Acknowledgements](#acknowledgements)
 
 ## Getting Started
-### System Requirements
-* [psutil](https://github.com/giampaolo/psutil/blob/master/INSTALL.rst) 
+### System Requirements 
 * [golang 1.5+](https://golang.org/dl/) (needed only for building)
+
+Note: This plugin does not require Python rather it depends on the go library [gopsutil](https://github.com/shirou/gopsutil).  
 
 ### Operating systems
 All OSs currently supported by snap:
@@ -54,8 +55,8 @@ Some metrics are platform specific (see [gopsutil's current status](https://gith
 ## Documentation
 There are a number of other resources you can review to learn to use this plugin:
 
-* [psutil](https://pythonhosted.org/psutil/) 
-* [gopsutil](https://github.com/shirou/gopsutil/)
+* [gopsutil](https://github.com/shirou/gopsutil/) (go based implementation)
+* [psutil](https://pythonhosted.org/psutil/) (python based implementation)
 * [snap psutil integration test](https://github.com/intelsdi-x/snap-plugin-collector-psutil/blob/master/psutil/psutil_integration_test.go)
 * [snap psutil unit test](https://github.com/intelsdi-x/snap-plugin-collector-psutil/blob/master/psutil/psutil_test.go)
 * [snap psutil examples](#examples)
