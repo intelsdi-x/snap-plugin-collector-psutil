@@ -1,0 +1,10 @@
+---
+  version: 1
+  schedule: 
+    type: "simple"
+    interval: "1s"
+  max-failures: 10
+  workflow: 
+    collect: 
+      metrics: 
+        /intel/psutil/vm/total: {}
