@@ -28,11 +28,11 @@ class LargeTest(unittest.TestCase):
         tasks = self.binaries.snapctl.list_tasks()
         self.assertGreater(metrics, 0, "Metrics available %s" % metrics)
         self.assertEqual(plugins, 1, "Plugins available %s" % plugins)
-        self.assertEqual(tasks, 0, "Tasks avaialble %s" % tasks)
+        self.assertEqual(tasks, 0, "Tasks available %s" % tasks)
 
         task_id = self.binaries.snapctl.create_task("/snap-plugin-collector-psutil/scripts/docker/large/psutil-task.yml")
         tasks = self.binaries.snapctl.list_tasks()
-        self.assertEqual(tasks, 1, "Tasks avaialble %s" % tasks)
+        self.assertEqual(tasks, 1, "Tasks available %s" % tasks)
 
         hits = self.binaries.snapctl.task_hits(task_id)
         fails = self.binaries.snapctl.task_fails(task_id)
@@ -42,13 +42,13 @@ class LargeTest(unittest.TestCase):
         stopped = self.binaries.snapctl.stop_task(task_id)
         self.assertTrue(stopped, "Task stopped")
         tasks = self.binaries.snapctl.list_tasks()
-        self.assertEqual(tasks, 1, "Tasks avaialble %s" % tasks)
+        self.assertEqual(tasks, 1, "Tasks available %s" % tasks)
 
         self.binaries.snapctl.unload_plugin("collector", "psutil", "6")
         metrics = self.binaries.snapctl.list_metrics()
         plugins = self.binaries.snapctl.list_plugins()
         self.assertEqual(metrics, 0, "Metrics available %s" % metrics)
-        self.assertEqual(plugins, 0, "Plugins available %s" % plugins)
+        self.assertEqual(plugins, 1, "Plugins available %s" % plugins)
 
         self.assertEqual(len(self.binaries.snapd.errors), 0, "Errors found during snapd execution")
 

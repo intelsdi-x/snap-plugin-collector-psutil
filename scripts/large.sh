@@ -27,11 +27,8 @@ _docker_project () {
 _debug "building docker compose images"
 _docker_project docker-compose build
 _debug "running test: ${TEST_TYPE}"
-set +e
 _docker_project docker-compose up
-test_res=$?
-set -e
-
+test_res=`docker-compose ps -q | xargs docker inspect -f '{{ .Name }} exited with status {{ .State.ExitCode }}' | awk '{print $5}'`
 echo "exit code from large_jenkins $test_res"
 _debug "stopping docker compose images"
 _docker_project docker-compose stop
