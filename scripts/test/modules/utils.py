@@ -7,7 +7,7 @@ from logger import log
 
 def download_binaries(bins):
     for binary in bins.get_all_bins():
-        log.debug("Downloading %s to %s" % (binary.url, binary.dir))
+        log.debug("Downloading {} to {}".format(binary.url, binary.dir))
         _download_binary(binary)
 
 
@@ -22,7 +22,7 @@ def set_binaries():
 def _ensure_dir(dirname):
     try:
         os.makedirs(dirname)
-        log.debug("%s created" % dirname)
+        log.debug("{} created".format(dirname))
     except OSError as e:
         if e.errno != errno.EEXIST:
             log.error(e.errno)
@@ -36,7 +36,7 @@ def _download_binary(binary):
             _ensure_dir(binary.dir)
         fname, headers = f.retrieve(binary.url, os.path.join(binary.dir, os.path.basename(binary.url)))
         os.chmod(fname, 755)
-        log.debug("chmod set to 755 for %s", fname)
+        log.debug("chmod set to 755 for {}".format(fname))
     except IOError as e:
         log.error(e.args)
 

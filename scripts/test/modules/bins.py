@@ -28,6 +28,7 @@ def _non_block_read(output):
 class Binary(object):
 
     def __init__(self, url, location):
+        super(Binary, self).__init__()
         self._url = url
         self._dir = location
         self._name = os.path.basename(url)
@@ -63,8 +64,7 @@ class Binary(object):
 class Snapd(Binary, threading.Thread):
 
     def __init__(self, url, location):
-        Binary.__init__(self, url, location)
-        threading.Thread.__init__(self)
+        super(Snapd, self).__init__(url, location)
         self.stdout = None
         self.stderr = None
         self.errors = []
@@ -73,8 +73,8 @@ class Snapd(Binary, threading.Thread):
         self._process = None
 
     def run(self):
-        cmd = '%s -t 0 -l 1 ' % (os.path.join(self.dir, self.name))
-        log.debug("starting snapd thread: %s" % cmd)
+        cmd = '{} -t 0 -l 1 '.format(os.path.join(self.dir, self.name))
+        log.debug("starting snapd thread: {}".format(cmd))
         self._process = subprocess.Popen(cmd.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         while not self.stopped():
             out = _non_block_read(self._process.stderr)
@@ -83,7 +83,8 @@ class Snapd(Binary, threading.Thread):
                 log.debug("snapd is ready")
             if "error" in out:
                 self.errors.append(out)
-        self._process.kill()
+        if not self._process.poll():
+            self._process.kill()
         log.debug("exiting snapd thread")
 
     def stop(self):
@@ -94,11 +95,16 @@ class Snapd(Binary, threading.Thread):
         return self._stop.isSet()
 
     def wait(self, timeout=10):
-        out = 0
-        while not self._ready.isSet() or out > timeout:
-            out += 0.5
+        start = time.time()
+        current = time.time()
+        while not self._ready.isSet() and current - start < timeout:
+            current = time.time()
             time.sleep(0.5)
-        return out <= timeout
+        return current - start < timeout
+
+    def kill(self):
+        self._process.kill()
+        self.stop()
 
 
 class Snapctl(Binary):
@@ -108,81 +114,92 @@ class Snapctl(Binary):
         self.errors = []
 
     def load_plugin(self, plugin):
-        cmd = '%s plugin load %s' % (os.path.join(self.dir, self.name), os.path.join(PLUGIN_DIR, plugin))
-        log.debug("snapctl load plugin %s", cmd)
+        cmd = '{} plugin load {}'.format(os.path.join(self.dir, self.name), os.path.join(PLUGIN_DIR, plugin))
+        log.debug("snapctl load plugin {}".format(cmd))
         out = self._start_process(cmd)
-        log.debug("plugin loaded? %s", "Plugin loaded" in out)
+        log.debug("plugin loaded? {}".format("Plugin loaded" in out))
         return "Plugin loaded" in out
 
     def unload_plugin(self, plugin_type, plugin_name, plugin_version):
-        cmd = '%s plugin unload %s:%s:%s' % (os.path.join(self.dir, self.name), plugin_type, plugin_name, plugin_version)
-        log.debug("snapctl unload plugin %s", cmd)
+        cmd = '{} plugin unload {}:{}:{}'.format(os.path.join(self.dir, self.name), plugin_type, plugin_name, plugin_version)
+        log.debug("snapctl unload plugin {}".format(cmd))
         out = self._start_process(cmd)
-        log.debug("plugin unloaded? %s", "Plugin unloaded" in out)
+        log.debug("plugin unloaded? {}".format("Plugin unloaded" in out))
         return "Plugin unloaded" in out
 
     def list_plugins(self):
-        cmd = '%s plugin list' % (os.path.join(self.dir, self.name))
+        cmd = '{} plugin list'.format(os.path.join(self.dir, self.name))
         log.debug("snapctl plugin list")
         plugins = self._start_process(cmd).split('\n')[1:-1]
-        return len(plugins)
+        return plugins
 
     def create_task(self, task):
-        cmd = '%s task create -t %s' % (os.path.join(self.dir, self.name), task)
+        cmd = '{} task create -t {}'.format(os.path.join(self.dir, self.name), task)
         log.debug("snapctl task create")
         out = self._start_process(cmd).split('\n')
         # sleeping for 10 seconds so the task can do some work
         time.sleep(10)
-        if len(out) == 0:
-            return False
-        log.debug("task created? %s", out[1] == "Task created")
+        if not len(out):
+            return "" 
+        log.debug("task created? {}".format(out[1] == "Task created"))
         task_id = out[2].split()
-        if len(task_id):
-            return task_id[1]
-        return ""
+        return task_id[1] if len(task_id) else ""
 
     def list_tasks(self):
-        return len(self._task_list())
+        return self._task_list()
 
     def stop_task(self, task_id):
-        cmd = '%s task stop %s' % (os.path.join(self.dir, self.name), task_id)
+        cmd = '{} task stop {}'.format(os.path.join(self.dir, self.name), task_id)
         log.debug("snapctl task stop")
         out = self._start_process(cmd).split('\n')
         return "Task stopped" in out[0]
 
-    def task_hits(self, task_id):
+    def task_hits_count(self, task_id):
         tasks = self._task_list()
         hits = 0
         for task in tasks:
             if task.split()[0] == task_id:
                 hits += int(task.split()[3])
 
-        log.debug("task hits %s", hits)
+        log.debug("task hits {}".format(hits))
         return hits
 
-    def task_fails(self, task_id):
+    def task_fails_count(self, task_id):
         tasks = self._task_list()
         fails = 0
         for task in tasks:
             if task.split()[0] == task_id:
                 fails += int(task.split()[5])
 
-        log.debug("task fails %s", fails)
+        log.debug("task fails {}".format(fails))
         return fails
 
     def list_metrics(self):
-        cmd = '%s metric list' % (os.path.join(self.dir, self.name))
+        cmd = '{} metric list'.format(os.path.join(self.dir, self.name))
         log.debug("snapctl metric list")
         metrics = self._start_process(cmd).split('\n')[1:-1]
-        return len(metrics)
+        return metrics
+    
+    def metric_get(self, metric):
+        cmd = '{} metric get -m {}'.format(os.path.join(self.dir, self.name), metric)
+        log.debug("snapctl metric get -m {}".format(metric))
+        out = self._start_process(cmd).split('\n')[7:]
+        headers = map(lambda e: e.replace(" ", ""), filter(lambda e: e != "", out[0].split('\t')))
+        rules = []
+        for o in out[1:]:
+            r = map(lambda e: e.replace(" ", ""), filter(lambda e: e != "", o.split('\t')))
+            if len(r) == len(headers):
+                rule = {}
+                for i in range(len(headers)):
+                    rule[headers[i]] = r[i]
+                rules.append(rule)
+        return rules
 
     def _task_list(self):
-        cmd = '%s task list' % (os.path.join(self.dir, self.name))
+        cmd = '{} task list'.format(os.path.join(self.dir, self.name))
         tasks = self._start_process(cmd).split('\n')[1:]
         tasks = filter(lambda t: t != '', tasks)
-        if len(tasks):
-            return tasks
-        return []
+        return tasks if len(tasks) else []
 
     def _start_process(self, cmd):
         process = subprocess.Popen(cmd.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
