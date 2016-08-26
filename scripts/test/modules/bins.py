@@ -1,3 +1,20 @@
+#http://www.apache.org/licenses/LICENSE-2.0.txt
+#
+#
+#Copyright 2016 Intel Corporation
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+
 import os
 import threading
 import subprocess
@@ -183,7 +200,10 @@ class Snapctl(Binary):
     def metric_get(self, metric):
         cmd = '{} metric get -m {}'.format(os.path.join(self.dir, self.name), metric)
         log.debug("snapctl metric get -m {}".format(metric))
-        out = self._start_process(cmd).split('\n')[7:]
+        out = self._start_process(cmd).split('\n')
+        if len(out) < 8:
+            return []
+        out = out[7:]
         headers = map(lambda e: e.replace(" ", ""), filter(lambda e: e != "", out[0].split('\t')))
         rules = []
         for o in out[1:]:

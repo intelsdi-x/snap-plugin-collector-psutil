@@ -1,8 +1,8 @@
 sudo: false
 language: go
 go:
-- 1.5.4
-- 1.6.2
+- 1.6.3
+- 1.7
 env:
   global:
     - ORG_PATH=/home/travis/gopath/src/github.com/intelsdi-x
@@ -13,7 +13,7 @@ env:
     - TEST=build
 matrix:
   exclude:
-    - go: 1.5.4
+    - go: 1.6.3
       env: TEST_TYPE=build
 before_install:
   - go get github.com/tools/godep
@@ -42,7 +42,7 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-psutil
     branch: build
-    condition: $TEST_TYPE=build && $TRAVIS_GO_VERSION="1.6.2"
+    condition: $TEST_TYPE=build && $TRAVIS_GO_VERSION="1.7"
 notifications:
   slack:
     secure: VkbZLIc2RH8yf3PtIAxUNPdAu3rQQ7yQx0GcK124JhbEnZGaHyK615V0rbG7HcVmYKGPdB0cXqZiLBDKGqGKb2zR1NepOe1nF03jxGSpPq8jIFeEXSJGEYGL34ScDzZZGuG6qwbjFcXiW5lqn6t8igzp7v2+URYBaZo5ktCS2xY=
