@@ -1,0 +1,9 @@
+version: '2'
+services:
+  main:
+    container_name: psutil_large_test
+    image: mkrolik/alpine-python:latest
+    network_mode: "host"
+    volumes:
+      - ${PLUGIN_SRC}:/snap-plugin-collector-psutil
+    entrypoint: sh -c 'python /snap-plugin-collector-psutil/scripts/test/large.py'

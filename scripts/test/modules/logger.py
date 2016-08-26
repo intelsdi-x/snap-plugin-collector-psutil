@@ -1,5 +1,3 @@
-#!/bin/bash -e
-
 #http://www.apache.org/licenses/LICENSE-2.0.txt
 #
 #
@@ -17,28 +15,22 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-GITVERSION=`git describe --always`
-SOURCEDIR=$1
-BUILDDIR=$SOURCEDIR/build
-PLUGIN=`echo $SOURCEDIR | grep -oh "snap-.*"`
-ROOTFS=$BUILDDIR/rootfs
-BUILDCMD='go build -a -ldflags "-w"'
+import logging
 
-echo
-echo "****  Snap Plugin Build  ****"
-echo
 
-# Disable CGO for builds
-export CGO_ENABLED=0
+def setup_custom_logger(name):
+    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
-# Clean build bin dir
-rm -rf $ROOTFS/*
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
 
-# Make dir
-mkdir -p $ROOTFS
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    return logger
 
-# Build plugin
-echo "Source Dir = $SOURCEDIR"
-echo "Building Snap Plugin: $PLUGIN"
-$BUILDCMD -o $ROOTFS/$PLUGIN
+log = setup_custom_logger("logger")
+
+
+
 

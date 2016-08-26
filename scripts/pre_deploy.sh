@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 #http://www.apache.org/licenses/LICENSE-2.0.txt
 #
@@ -17,28 +17,25 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-GITVERSION=`git describe --always`
-SOURCEDIR=$1
-BUILDDIR=$SOURCEDIR/build
-PLUGIN=`echo $SOURCEDIR | grep -oh "snap-.*"`
-ROOTFS=$BUILDDIR/rootfs
-BUILDCMD='go build -a -ldflags "-w"'
+set -e
+set -u
+set -o pipefail
 
-echo
-echo "****  Snap Plugin Build  ****"
-echo
+__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__proj_dir="$(dirname "$__dir")"
 
-# Disable CGO for builds
-export CGO_ENABLED=0
+# shellcheck source=scripts/common.sh
+. "${__dir}/common.sh"
 
-# Clean build bin dir
-rm -rf $ROOTFS/*
+build_path="${__proj_dir}/build"
+git_sha=$(git log --pretty=format:"%H" -1)
+git_path="${build_path}/${TRAVIS_BRANCH}/${git_sha}"
+latest_path="${build_path}/${TRAVIS_BRANCH}/latest"
 
-# Make dir
-mkdir -p $ROOTFS
+mkdir -p "${git_path}"
+mkdir -p "${latest_path}"
 
-# Build plugin
-echo "Source Dir = $SOURCEDIR"
-echo "Building Snap Plugin: $PLUGIN"
-$BUILDCMD -o $ROOTFS/$PLUGIN
-
+_info "copying binary to ${git_path}"
+cp "${build_path}/rootfs/"* "${git_path}"
+_info "copying snap binaries to ${latest_path}"
+mv "${build_path}/rootfs/"* "${latest_path}"
