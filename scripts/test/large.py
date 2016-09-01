@@ -15,8 +15,9 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-from modules import utils
-from modules.logger import log
+from pytest import bins
+from pytest import utils
+from pytest.logger import log
 from unittest import TextTestRunner
 
 import sys
@@ -26,8 +27,22 @@ import unittest
 class PsutilCollectorLargeTest(unittest.TestCase):
 
     def setUp(self):
+        plugin_dir = "/etc/snap/plugins"
+        snap_dir = "/usr/local/bin"
+
+        snapd_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapd"
+        snapctl_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapctl"
+        psutil_url = "http://snap.ci.snap-telemetry.io/plugin/build/latest/snap-plugin-collector-psutil"
+        passthru_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-processor-passthru"
+        mockfile_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-publisher-mock-file"
+
         # set and download required binaries (snapd, snapctl, plugins)
-        self.binaries = utils.set_binaries()
+        self.binaries = bins.Binaries()
+        self.binaries.snapd = bins.Snapd(snapd_url, snap_dir)
+        self.binaries.snapctl = bins.Snapctl(snapctl_url, snap_dir)
+        self.binaries.plugins = [bins.Binary(psutil_url, plugin_dir), bins.Binary(passthru_url, plugin_dir),
+                                 bins.Binary(mockfile_url, plugin_dir)]
+
         utils.download_binaries(self.binaries)
 
         log.debug("Starting snapd")
@@ -42,16 +57,17 @@ class PsutilCollectorLargeTest(unittest.TestCase):
             self.fail("snapd not ready, timeout!")
 
     def test_psutil_collector_plugin(self):
-        # load psutil collector
-        loaded = self.binaries.snapctl.load_plugin("snap-plugin-collector-psutil")
-        self.assertTrue(loaded, "psutil collector loaded")
+        # load plugins
+        for plugin in self.binaries.plugins:
+            loaded = self.binaries.snapctl.load_plugin(plugin)
+            self.assertTrue(loaded, "{} loaded".format(plugin.name))
 
         # check available metrics, plugins and tasks
         metrics = self.binaries.snapctl.list_metrics()
         plugins = self.binaries.snapctl.list_plugins()
         tasks = self.binaries.snapctl.list_tasks()
         self.assertGreater(len(metrics), 0, "Metrics available {} expected {}".format(len(metrics), 0))
-        self.assertEqual(len(plugins), 1, "Plugins available {} expected {}".format(len(plugins), 1))
+        self.assertEqual(len(plugins), 3, "Plugins available {} expected {}".format(len(plugins), 3))
         self.assertEqual(len(tasks), 0, "Tasks available {} expected {}".format(len(tasks), 0))
 
         # check config policy for metric
@@ -59,7 +75,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         self.assertEqual(len(rules), 0, "Rules available {} expected {}".format(len(rules), 0))
 
         # create and list available task
-        task_id = self.binaries.snapctl.create_task("/snap-plugin-collector-psutil/scripts/docker/large/psutil-task.yml")
+        task_id = self.binaries.snapctl.create_task("/snap-plugin-collector-psutil/examples/tasks/psutil-file.json")
         tasks = self.binaries.snapctl.list_tasks()
         self.assertEqual(len(tasks), 1, "Tasks available {} expected {}".format(len(tasks), 1))
 
@@ -80,7 +96,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         metrics = self.binaries.snapctl.list_metrics()
         plugins = self.binaries.snapctl.list_plugins()
         self.assertEqual(len(metrics), 0, "Metrics available {} expected {}".format(len(metrics), 0))
-        self.assertEqual(len(plugins), 0, "Plugins available {} expected {}".format(len(plugins), 0))
+        self.assertEqual(len(plugins), 2, "Plugins available {} expected {}".format(len(plugins), 2))
 
         # check for snapd errors
         self.assertEqual(len(self.binaries.snapd.errors), 0, "Errors found during snapd execution")
