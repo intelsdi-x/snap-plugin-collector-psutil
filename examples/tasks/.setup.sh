@@ -4,6 +4,8 @@ set -e
 set -u
 set -o pipefail
 
+git submodule update --init --recursive
+
 # check for dependencies
 EXIT_ON_ERROR=0
 command -v docker >/dev/null 2>&1 || { echo >&2 "Error: docker needs to be installed."; EXIT_ON_ERROR=1; }
