@@ -13,23 +13,23 @@
                 "/intel/psutil/vm/available": {},
                 "/intel/psutil/vm/free": {},
                 "/intel/psutil/vm/used": {}
-            }
-        },
-        "process": [
-            {
-                "plugin_name": "passthru",
-                "process": null,
-                "publish": [
-                    {                         
-                        "plugin_name": "mock-file",
-                        "config": {
-                            "file": "/tmp/published_psutil"
+            },
+            "process": [
+                {
+                    "plugin_name": "passthru",
+                    "process": null,
+                    "publish": [
+                        {
+                            "plugin_name": "mock-file",
+                            "config": {
+                                "file": "/tmp/published_psutil"
+                            }
                         }
-                    }
-                ],
-                "config": null
-            }
-        ],
-        "publish": null
+                    ],
+                    "config": null
+                }
+            ],
+            "publish": null
+        }
     }
 }
