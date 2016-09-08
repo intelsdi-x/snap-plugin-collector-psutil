@@ -37,21 +37,12 @@ deploy:
   region: us-west-2
   skip_cleanup: true
   local-dir: s3
-<<<<<<< HEAD
   upload-dir: plugins
   acl: public_read
   on:
     repo: intelsdi-x/snap-plugin-collector-psutil
     branch: master
     condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.1"
-=======
-  upload-dir: plugins/
-  acl: public_read
-  on:
-    repo: intelsdi-x/${TRAVIS_REPO_SLUG}
-    branch: master
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7"
->>>>>>> 479f04b... Update from pluginsync
 - provider: s3
   access_key_id: AKIAINMB43VSSPFZISAA
   secret_access_key:
@@ -60,7 +51,6 @@ deploy:
   region: us-west-2
   skip_cleanup: true
   local-dir: s3
-<<<<<<< HEAD
   upload-dir: plugins
   acl: public_read
   on:
@@ -78,11 +68,3 @@ deploy:
     repo: intelsdi-x/snap-plugin-collector-psutil
     tags: true
     condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.1"
-=======
-  upload-dir: plugins/
-  acl: public_read
-  on:
-    repo: intelsdi-x/${TRAVIS_REPO_SLUG}
-    tags: true
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7"
->>>>>>> 479f04b... Update from pluginsync
