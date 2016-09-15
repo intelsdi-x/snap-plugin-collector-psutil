@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+set -u
+set -o pipefail
+
+# get the directory the script exists in
+#__dir="$(cd ../../scripts/docker/large && pwd)"
+__dir=$(cd $(dirname ${BASH_SOURCE[0]})/../../scripts/docker/large && pwd)
+__proj_dir="$(cd $(dirname ${BASH_SOURCE[0]})/../../ && pwd)"
+__proj_name="$(basename $__proj_dir)"
+
+export PLUGIN_SRC="${__proj_dir}"
+
+# verifies dependencies and starts influxdb
+. "${__proj_dir}/examples/tasks/.setup.sh"
+
+# downloads plugins, starts snap, load plugins and start a task
+__id=$(docker run -e SNAP_VERSION=latest -d -v ${PLUGIN_SRC}:/${__proj_name} --net=host intelsdi/snap:alpine)
+docker exec -it ${__id} bash -c "PLUGIN_PATH=/etc/snap/plugins /${__proj_name}/examples/tasks/mock-psutil.sh && printf \"\n\nhint: type 'snapctl task list'\ntype 'exit' when your done\n\n\" && bash"
+docker kill ${__id}

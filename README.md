@@ -131,7 +131,7 @@ See available metrics for your system
 $ $SNAP_PATH/bin/snapctl metric list
 ```
 
-Create a task manifest file (e.g. `psutil-file.json`):    
+Create a task manifest file (e.g. `task-psutil.json`):    
 ```json
 {
     "version": 1,

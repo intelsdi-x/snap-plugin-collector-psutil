@@ -1,0 +1,3 @@
+[submodule "scripts/test/pytest"]
+	path = scripts/test/pytest
+	url = https://github.com/marcin-krolik/snap-pytest
