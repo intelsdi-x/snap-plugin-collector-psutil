@@ -42,7 +42,7 @@ _gofmt() {
   test -z "$(gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") | tee /dev/stderr)"
 }
 
-test_small() {
+test_unit() {
   # The script does automatic checking on a Go package and its sub-packages, including:
   # 1. gofmt         (http://golang.org/cmd/gofmt/)
   # 2. goimports     (https://github.com/bradfitz/goimports)
@@ -69,12 +69,16 @@ test_small() {
   done
 }
 
-if [[ $TEST_TYPE == "small" ]]; then
+if [[ $TEST_TYPE == "legacy" ]]; then
+  echo "mode: count" > profile.cov
+  export TEST_TYPE="unit"
+  test_unit
+elif [[ $TEST_TYPE == "small" ]]; then
   if [[ -f "${__dir}/small.sh" ]]; then
     . "${__dir}/small.sh"
   else
     echo "mode: count" > profile.cov
-    test_small
+    test_unit
   fi
 elif [[ $TEST_TYPE == "medium" ]]; then
   if [[ -f "${__dir}/medium.sh" ]]; then

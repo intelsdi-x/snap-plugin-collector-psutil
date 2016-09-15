@@ -39,8 +39,8 @@ s3_path="${__proj_dir}/s3/${plugin_name}"
 set +u
 if [ -z "$TRAVIS_TAG" ]; then
   set -u
-  git_path="${s3_path}/${TRAVIS_BRANCH}/${git_sha}"
-  latest_path="${s3_path}/${TRAVIS_BRANCH}/latest"
+  git_path="${s3_path}/${git_sha}"
+  latest_path="${s3_path}/latest"
   mkdir -p "${git_path}"
   mkdir -p "${latest_path}"
 
