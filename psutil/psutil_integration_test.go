@@ -50,7 +50,7 @@ func TestPsutilCollectMetrics(t *testing.T) {
 			}
 			if runtime.GOOS != "darwin" {
 				mts = append(mts, plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "cpu0", "user"),
+					Namespace_: core.NewNamespace("intel", "psutil", "cpu", "cpu0", "user"),
 				})
 			}
 			metrics, err := p.CollectMetrics(mts)

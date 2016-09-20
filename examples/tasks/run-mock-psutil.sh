@@ -17,5 +17,10 @@ export PLUGIN_SRC="${__proj_dir}"
 
 # downloads plugins, starts snap, load plugins and start a task
 __id=$(docker run -e SNAP_VERSION=latest -d -v ${PLUGIN_SRC}:/${__proj_name} --net=host intelsdi/snap:alpine)
+# clean up containers on exit
+function finish {
+  (docker kill ${__id})
+}
+trap finish EXIT INT TERM
+
 docker exec -it ${__id} bash -c "PLUGIN_PATH=/etc/snap/plugins /${__proj_name}/examples/tasks/mock-psutil.sh && printf \"\n\nhint: type 'snapctl task list'\ntype 'exit' when your done\n\n\" && bash"
-docker kill ${__id}

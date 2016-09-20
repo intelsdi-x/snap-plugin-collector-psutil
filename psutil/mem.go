@@ -26,75 +26,82 @@ import (
 	"github.com/shirou/gopsutil/mem"
 )
 
-func virtualMemory(ns core.Namespace) (*plugin.MetricType, error) {
+func virtualMemory(nss []core.Namespace) ([]plugin.MetricType, error) {
 	mem, err := mem.VirtualMemory()
 	if err != nil {
 		return nil, err
 	}
 
-	switch ns.String() {
-	case "/intel/psutil/vm/total":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Total,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/available":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Available,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/used":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Used,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/used_percent":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.UsedPercent,
-		}, nil
-	case "/intel/psutil/vm/free":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Free,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/active":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Active,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/inactive":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Inactive,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/buffers":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Buffers,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/cached":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Cached,
-			Unit_:      "B",
-		}, nil
-	case "/intel/psutil/vm/wired":
-		return &plugin.MetricType{
-			Namespace_: ns,
-			Data_:      mem.Wired,
-			Unit_:      "B",
-		}, nil
+	results := make([]plugin.MetricType, len(nss))
+
+	for i, ns := range nss {
+
+		switch ns.Element(len(ns) - 1).Value {
+		case "total":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Total,
+				Unit_:      "B",
+			}
+		case "available":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Available,
+				Unit_:      "B",
+			}
+		case "used":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Used,
+				Unit_:      "B",
+			}
+		case "used_percent":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.UsedPercent,
+			}
+		case "free":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Free,
+				Unit_:      "B",
+			}
+		case "active":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Active,
+				Unit_:      "B",
+			}
+		case "inactive":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Inactive,
+				Unit_:      "B",
+			}
+		case "buffers":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Buffers,
+				Unit_:      "B",
+			}
+		case "cached":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Cached,
+				Unit_:      "B",
+			}
+		case "wired":
+			results[i] = plugin.MetricType{
+				Namespace_: ns,
+				Data_:      mem.Wired,
+				Unit_:      "B",
+			}
+		default:
+			return nil, fmt.Errorf("Requested memory statistic %s is not found", ns.String())
+		}
 	}
 
-	return nil, fmt.Errorf("Unknown error processing %v", ns)
+	return results, nil
 }
 
 func getVirtualMemoryMetricTypes() []plugin.MetricType {
