@@ -10,6 +10,7 @@ env:
   - SNAP_PLUGIN_SOURCE=/home/travis/gopath/src/github.com/${TRAVIS_REPO_SLUG}
   matrix:
   - TEST_TYPE=small
+  - TEST_TYPE=medium
   - TEST_TYPE=build
 matrix:
   exclude:
