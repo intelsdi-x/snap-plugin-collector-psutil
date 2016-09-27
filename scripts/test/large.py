@@ -33,7 +33,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
 
         snapd_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapd"
         snapctl_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapctl"
-        psutil_url = "http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-psutil/latest/linux/x86_64/snap-plugin-collector-psutil"
+        psutil_url = "http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-psutil/latest_build/linux/x86_64/snap-plugin-collector-psutil"
         passthru_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-processor-passthru"
         mockfile_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-publisher-mock-file"
 

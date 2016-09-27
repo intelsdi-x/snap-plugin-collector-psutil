@@ -20,7 +20,7 @@ package psutil
 
 import (
 	"fmt"
-	"regexp"
+	"time"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
@@ -62,87 +62,122 @@ var netIOCounterLabels = map[string]label{
 	},
 }
 
-func netIOCounters(ns core.Namespace) (*plugin.MetricType, error) {
-	nets, err := net.IOCounters(true)
+func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
+	// gather accumulated metrics for all interfaces
+	netsAll, err := net.IOCounters(false)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, net := range nets {
-		switch {
-		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_sent$`).MatchString(ns.String()):
-			return &plugin.MetricType{
+	// gather metrics per nic
+	netsNic, err := net.IOCounters(true)
+	if err != nil {
+		return nil, err
+	}
+
+	results := []plugin.MetricType{}
+
+	for _, ns := range nss {
+		// set requested metric name from last namespace element
+		metricName := ns.Element(len(ns) - 1).Value
+		// check if requested metric is dynamic (requesting metrics for all nics)
+		if ns[3].Value == "*" {
+			for _, net := range netsNic {
+				// prepare namespace copy to update value
+				// this will allow to keep namespace as dynamic (name != "")
+				dyn := make([]core.NamespaceElement, len(ns))
+				copy(dyn, ns)
+				dyn[3].Value = net.Name
+				// get requested metric value
+				val, err := getNetIOCounterValue(&net, metricName)
+				if err != nil {
+					return nil, err
+				}
+
+				metric := plugin.MetricType{
+					Namespace_: dyn,
+					Data_:      val,
+					Timestamp_: time.Now(),
+					Unit_:      netIOCounterLabels[metricName].unit,
+				}
+				results = append(results, metric)
+			}
+		} else {
+			stats := append(netsAll, netsNic...)
+			// find stats for interface name or all nics
+			stat := findNetIOStats(stats, ns[3].Value)
+			if stat == nil {
+				return nil, fmt.Errorf("Requested interface %s not found", ns[3].Value)
+			}
+			// get value for requested metric
+			val, err := getNetIOCounterValue(stat, metricName)
+			if err != nil {
+				return nil, err
+			}
+
+			metric := plugin.MetricType{
 				Namespace_: ns,
-				Data_:      net.BytesSent,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/bytes_recv`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.BytesRecv,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_sent`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.BytesSent,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/packets_recv`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.BytesRecv,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/errin`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.Errin,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/errout`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.Errout,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/dropin`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.Dropin,
-			}, nil
-		case regexp.MustCompile(`^/intel/psutil/net/.*/dropout`).MatchString(ns.String()):
-			return &plugin.MetricType{
-				Namespace_: ns,
-				Data_:      net.Dropout,
-			}, nil
+				Data_:      val,
+				Timestamp_: time.Now(),
+				Unit_:      netIOCounterLabels[metricName].unit,
+			}
+			results = append(results, metric)
 		}
 	}
 
-	return nil, fmt.Errorf("Unknown error processing %v", ns)
+	return results, nil
+}
+
+func findNetIOStats(nets []net.IOCountersStat, name string) *net.IOCountersStat {
+	for _, net := range nets {
+		if net.Name == name {
+			return &net
+		}
+	}
+	return nil
+}
+
+func getNetIOCounterValue(stat *net.IOCountersStat, name string) (uint64, error) {
+	switch name {
+	case "bytes_sent":
+		return stat.BytesSent, nil
+	case "bytes_recv":
+		return stat.BytesRecv, nil
+	case "packets_sent":
+		return stat.PacketsSent, nil
+	case "packets_recv":
+		return stat.PacketsRecv, nil
+	case "errin":
+		return stat.Errin, nil
+	case "errout":
+		return stat.Errout, nil
+	case "dropin":
+		return stat.Dropin, nil
+	case "dropout":
+		return stat.Dropout, nil
+	default:
+		return 0, fmt.Errorf("Requested NetIOCounter statistic %s is not available", name)
+	}
 }
 
 func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
 	mts := make([]plugin.MetricType, 0)
-	nets, err := net.IOCounters(false)
-	if err != nil {
-		return nil, err
-	}
-	//total for all nics
+
 	for name, label := range netIOCounterLabels {
+		//metrics which are the sum for all available nics
 		mts = append(mts, plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "net", nets[0].Name, name),
+			Namespace_:   core.NewNamespace("intel", "psutil", "net", "all", name),
+			Description_: label.description,
+			Unit_:        label.unit,
+		})
+		//dynamic metrics representing any nic
+		mts = append(mts, plugin.MetricType{
+			Namespace_: core.NewNamespace("intel", "psutil", "net").
+				AddDynamicElement("nic_id", "network interface id").AddStaticElement(name),
 			Description_: label.description,
 			Unit_:        label.unit,
 		})
 	}
-	//per nic
-	nets, err = net.IOCounters(true)
-	if err != nil {
-		return nil, err
-	}
-	for _, net := range nets {
-		for name, label := range netIOCounterLabels {
-			mts = append(mts, plugin.MetricType{
-				Namespace_:   core.NewNamespace("intel", "psutil", "net", net.Name, name),
-				Description_: label.description,
-				Unit_:        label.unit,
-			})
-		}
-	}
+
 	return mts, nil
 }

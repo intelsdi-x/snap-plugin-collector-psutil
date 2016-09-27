@@ -19,22 +19,18 @@ limitations under the License.
 package psutil
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"regexp"
-	"strings"
-	"time"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 )
 
 const (
 	// Name of plugin
 	name = "psutil"
 	// Version of plugin
-	version = 6
+	version = 7
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 )
@@ -52,42 +48,53 @@ type Psutil struct {
 
 // CollectMetrics returns metrics from gopsutil
 func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
-	metrics := make([]plugin.MetricType, len(mts))
-	loadre := regexp.MustCompile(`^/intel/psutil/load/load[1,5,15]`)
-	cpure := regexp.MustCompile(`^/intel/psutil/cpu.*/.*`)
-	memre := regexp.MustCompile(`^/intel/psutil/vm/.*`)
-	netre := regexp.MustCompile(`^/intel/psutil/net/.*`)
+	loadReqs := []core.Namespace{}
+	cpuReqs := []core.Namespace{}
+	memReqs := []core.Namespace{}
+	netReqs := []core.Namespace{}
 
-	for i, p := range mts {
-		switch {
-		case loadre.MatchString(p.Namespace().String()):
-			metric, err := loadAvg(p.Namespace())
-			if err != nil {
-				return nil, err
-			}
-			metrics[i] = *metric
-		case cpure.MatchString(p.Namespace().String()):
-			metric, err := cpuTimes(p.Namespace())
-			if err != nil {
-				return nil, err
-			}
-			metrics[i] = *metric
-		case memre.MatchString(p.Namespace().String()):
-			metric, err := virtualMemory(p.Namespace())
-			if err != nil {
-				return nil, err
-			}
-			metrics[i] = *metric
-		case netre.MatchString(p.Namespace().String()):
-			metric, err := netIOCounters(p.Namespace())
-			if err != nil {
-				return nil, err
-			}
-			metrics[i] = *metric
+	for _, m := range mts {
+		ns := m.Namespace()
+		switch ns[2].Value {
+		case "load":
+			loadReqs = append(loadReqs, ns)
+		case "cpu":
+			cpuReqs = append(cpuReqs, ns)
+		case "vm":
+			memReqs = append(memReqs, ns)
+		case "net":
+			netReqs = append(netReqs, ns)
+		default:
+			return nil, fmt.Errorf("Requested metric %s does not match any known psutil metric", m.Namespace().String())
 		}
-		metrics[i].Timestamp_ = time.Now()
-
 	}
+
+	metrics := []plugin.MetricType{}
+
+	loadMts, err := loadAvg(loadReqs)
+	if err != nil {
+		return nil, err
+	}
+	metrics = append(metrics, loadMts...)
+
+	cpuMts, err := cpuTimes(cpuReqs)
+	if err != nil {
+		return nil, err
+	}
+	metrics = append(metrics, cpuMts...)
+
+	memMts, err := virtualMemory(memReqs)
+	if err != nil {
+		return nil, err
+	}
+	metrics = append(metrics, memMts...)
+
+	netMts, err := netIOCounters(netReqs)
+	if err != nil {
+		return nil, err
+	}
+	metrics = append(metrics, netMts...)
+
 	return metrics, nil
 }
 
@@ -102,6 +109,7 @@ func (p *Psutil) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error
 	}
 	mts = append(mts, mts_...)
 	mts = append(mts, getVirtualMemoryMetricTypes()...)
+
 	mts_, err = getNetIOCounterMetricTypes()
 	if err != nil {
 		return nil, err
@@ -115,20 +123,6 @@ func (p *Psutil) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error
 func (p *Psutil) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	c := cpolicy.New()
 	return c, nil
-}
-
-func joinNamespace(ns []string) string {
-	return "/" + strings.Join(ns, "/")
-}
-
-func prettyPrint(mts []plugin.MetricType) error {
-	var out bytes.Buffer
-	mtsb, _, _ := plugin.MarshalMetricTypes(plugin.SnapJSONContentType, mts)
-	if err := json.Indent(&out, mtsb, "", "  "); err != nil {
-		return err
-	}
-	fmt.Println(out.String())
-	return nil
 }
 
 type label struct {
