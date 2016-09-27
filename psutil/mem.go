@@ -20,6 +20,7 @@ package psutil
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
@@ -35,69 +36,38 @@ func virtualMemory(nss []core.Namespace) ([]plugin.MetricType, error) {
 	results := make([]plugin.MetricType, len(nss))
 
 	for i, ns := range nss {
+		var data interface{}
 
 		switch ns.Element(len(ns) - 1).Value {
 		case "total":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Total,
-				Unit_:      "B",
-			}
+			data = mem.Total
 		case "available":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Available,
-				Unit_:      "B",
-			}
+			data = mem.Available
 		case "used":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Used,
-				Unit_:      "B",
-			}
+			data = mem.Used
 		case "used_percent":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.UsedPercent,
-			}
+			data = mem.UsedPercent
 		case "free":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Free,
-				Unit_:      "B",
-			}
+			data = mem.Free
 		case "active":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Active,
-				Unit_:      "B",
-			}
+			data = mem.Active
 		case "inactive":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Inactive,
-				Unit_:      "B",
-			}
+			data = mem.Inactive
 		case "buffers":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Buffers,
-				Unit_:      "B",
-			}
+			data = mem.Buffers
 		case "cached":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Cached,
-				Unit_:      "B",
-			}
+			data = mem.Cached
 		case "wired":
-			results[i] = plugin.MetricType{
-				Namespace_: ns,
-				Data_:      mem.Wired,
-				Unit_:      "B",
-			}
+			data = mem.Wired
 		default:
 			return nil, fmt.Errorf("Requested memory statistic %s is not found", ns.String())
+		}
+
+		results[i] = plugin.MetricType{
+			Namespace_: ns,
+			Data_:      data,
+			Unit_:      "B",
+			Timestamp_: time.Now(),
 		}
 	}
 

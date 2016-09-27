@@ -20,6 +20,7 @@ package psutil
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
@@ -41,18 +42,21 @@ func loadAvg(nss []core.Namespace) ([]plugin.MetricType, error) {
 				Namespace_: ns,
 				Data_:      load.Load1,
 				Unit_:      "Load/1M",
+				Timestamp_: time.Now(),
 			}
 		case "load5":
 			results[i] = plugin.MetricType{
 				Namespace_: ns,
 				Data_:      load.Load5,
 				Unit_:      "Load/5M",
+				Timestamp_: time.Now(),
 			}
 		case "load15":
 			results[i] = plugin.MetricType{
 				Namespace_: ns,
 				Data_:      load.Load15,
 				Unit_:      "Load/15M",
+				Timestamp_: time.Now(),
 			}
 		default:
 			return nil, fmt.Errorf("Requested load statistic %s is not found", ns.Element(len(ns)-1).Value)

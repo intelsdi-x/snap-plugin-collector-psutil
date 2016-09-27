@@ -20,7 +20,6 @@ package psutil
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
@@ -49,28 +48,24 @@ type Psutil struct {
 
 // CollectMetrics returns metrics from gopsutil
 func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
-	loadre := regexp.MustCompile(`^/intel/psutil/load/.*`)
-	cpure := regexp.MustCompile(`^/intel/psutil/cpu/.*`)
-	memre := regexp.MustCompile(`^/intel/psutil/vm/.*`)
-	netre := regexp.MustCompile(`^/intel/psutil/net/.*`)
-
 	loadReqs := []core.Namespace{}
 	cpuReqs := []core.Namespace{}
 	memReqs := []core.Namespace{}
 	netReqs := []core.Namespace{}
 
-	for _, p := range mts {
-		switch {
-		case loadre.MatchString(p.Namespace().String()):
-			loadReqs = append(loadReqs, p.Namespace())
-		case cpure.MatchString(p.Namespace().String()):
-			cpuReqs = append(cpuReqs, p.Namespace())
-		case memre.MatchString(p.Namespace().String()):
-			memReqs = append(memReqs, p.Namespace())
-		case netre.MatchString(p.Namespace().String()):
-			netReqs = append(netReqs, p.Namespace())
+	for _, m := range mts {
+		ns := m.Namespace()
+		switch ns[2].Value {
+		case "load":
+			loadReqs = append(loadReqs, ns)
+		case "cpu":
+			cpuReqs = append(cpuReqs, ns)
+		case "vm":
+			memReqs = append(memReqs, ns)
+		case "net":
+			netReqs = append(netReqs, ns)
 		default:
-			return nil, fmt.Errorf("Requested metric %s does not match any known psutil metric", p.Namespace().String())
+			return nil, fmt.Errorf("Requested metric %s does not match any known psutil metric", m.Namespace().String())
 		}
 	}
 
