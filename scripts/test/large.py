@@ -41,13 +41,13 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         self.binaries = bins.Binaries()
         self.binaries.snapd = bins.Snapd(snapd_url, snap_dir)
         self.binaries.snapctl = bins.Snapctl(snapctl_url, snap_dir)
-        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 6)
+        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 7)
         self.binaries.processor = bins.Plugin(passthru_url, plugins_dir, "processor", -1)
         self.binaries.publisher = bins.Plugin(mockfile_url, plugins_dir, "publisher", -1)
 
         utils.download_binaries(self.binaries)
 
-        self.task_file = "/snap-plugin-collector-psutil/examples/tasks/task-psutil.json"
+        self.task_file = "/{}/examples/tasks/task-psutil.json".format(os.getenv("PROJECT_NAME", "/snap-plugin-collector-psutil"))
 
         log.info("starting snapd")
         self.binaries.snapd.start()
@@ -107,7 +107,8 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         self.assertEqual(len(plugins), 2, "Plugins available {} expected {}".format(len(plugins), 2))
 
         # check for snapd errors
-        self.assertEqual(len(self.binaries.snapd.errors), 0, "Errors found during snapd execution")
+        self.assertEqual(len(self.binaries.snapd.errors), 0, "Errors found during snapd execution:\n{}"
+                         .format("\n".join(self.binaries.snapd.errors)))
 
     def tearDown(self):
         log.info("stopping snapd")

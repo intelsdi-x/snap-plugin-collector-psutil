@@ -5,5 +5,7 @@ services:
     image: python:2.7.12-alpine
     network_mode: "host"
     volumes:
-      - ${PLUGIN_SRC}:/snap-plugin-collector-psutil
+      - ${PLUGIN_SRC}:/${PROJECT_NAME}
     entrypoint: sh -c 'python /snap-plugin-collector-psutil/scripts/test/large.py'
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME}
