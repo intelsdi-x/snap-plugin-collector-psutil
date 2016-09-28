@@ -23,7 +23,7 @@ _info "downloading plugins"
 SNAP_FLAG=0
 
 # this block will wait check if snapctl and snapd are loaded before the plugins are loaded and the task is started
- for i in `seq 1 5`; do
+ for i in `seq 1 10`; do
              if [[ -f /usr/local/bin/snapctl && -f /usr/local/bin/snapd ]];
                 then
 
@@ -40,8 +40,8 @@ SNAP_FLAG=0
                     break
              fi 
         
-        _info "snapctl and/or snapd are unavailable, sleeping for 3 seconds" 
-        sleep 3
+        _info "snapctl and/or snapd are unavailable, sleeping for 5 seconds"
+        sleep 5
 done 
 
 
