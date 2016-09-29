@@ -28,8 +28,8 @@ from unittest import TextTestRunner
 class PsutilCollectorLargeTest(unittest.TestCase):
 
     def setUp(self):
-        plugins_dir = "/etc/snap/plugins"
-        snap_dir = "/usr/local/bin"
+        plugins_dir = os.getenv("PLUGINS_DIR", "/etc/snap/plugins")
+        snap_dir = os.getenv("SNAP_DIR", "/usr/local/bin")
 
         snapd_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapd"
         snapctl_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapctl"
@@ -47,7 +47,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
 
         utils.download_binaries(self.binaries)
 
-        self.task_file = "/{}/examples/tasks/task-psutil.json".format(os.getenv("PROJECT_NAME", "/snap-plugin-collector-psutil"))
+        self.task_file = "/{}/examples/tasks/task-psutil.json".format(os.getenv("PROJECT_NAME", "snap-plugin-collector-psutil"))
 
         log.info("starting snapd")
         self.binaries.snapd.start()
