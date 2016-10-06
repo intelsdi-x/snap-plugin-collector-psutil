@@ -3,7 +3,7 @@
 #http://www.apache.org/licenses/LICENSE-2.0.txt
 #
 #
-#Copyright 2016 Intel Corporation
+#Copyright 2015 Intel Corporation
 #
 #Licensed under the Apache License, Version 2.0 (the "License");
 #you may not use this file except in compliance with the License.
@@ -24,18 +24,33 @@ set -o pipefail
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __proj_dir="$(dirname "$__dir")"
 __proj_name="$(basename $__proj_dir)"
+__deployment_file="$__dir/config/k8s-deployment.yml"
+__deployment_name="psutil-deployment"
 
 . "${__dir}/common.sh"
 
-_info "DIR=${__dir}"
-_info "PROJ_DIR=${__proj_dir}"
-_info "PROJ_NAME${__proj_name}"
+_debug "__dir ${__dir}"
+_debug "__proj_dir ${__proj_dir}"
+_debug "__proj_name ${__proj_name}"
 
-#_info "updating repository submodule with pytest"
-cd ${__proj_dir} && git submodule update --init --recursive
+_debug "start k8 deployement $__deployment_file"
+kubectl create -f $__deployment_file
+while ! [ "$(kubectl get po --no-headers | grep $__deployment_name | grep Running | awk '{print $2}')" = "1/1" ]; do
+    kubectl get po --no-headers | grep $__deployment_name | grep CrashLoopBackOff && echo 'container failed' && exit 1
+    echo 'waiting for pod to come up'
+    sleep 5
+done
+_debug "copying the src into the runner"
+kubectl exec $(kubectl get po --no-headers | grep $__deployment_name | grep Running | awk '{print $1}') -c psutil-large-test -i  -- mkdir /src
+tar c  . | kubectl exec $(kubectl get po --no-headers | grep $__deployment_name | grep Running | awk '{print $1}') -c psutil-large-test -i  --  tar -x -C /src
 
-export PROJECT_NAME="${__proj_name}"
+set +e
+_debug "running tests through the runner"
+kubectl exec $(kubectl get po --no-headers | grep $__deployment_name | grep Running | awk '{print $1}') -c psutil-large-test -i -- /src/scripts/large_test.sh
+test_res=$?
+set -e
+_debug "exit code $test_res"
+_debug "removing k8 deployment"
+kubectl delete -f $__deployment_file
+exit $test_res
 
-#_info "execute large test"
-test_result=`python "${__proj_dir}/scripts/test/large.py"`
-exit $test_result

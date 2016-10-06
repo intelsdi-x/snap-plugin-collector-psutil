@@ -47,7 +47,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
 
         utils.download_binaries(self.binaries)
 
-        self.task_file = "/{}/examples/tasks/task-psutil.json".format(os.getenv("PROJECT_NAME", "snap-plugin-collector-psutil"))
+        self.task_file = "{}/examples/tasks/task-psutil.json".format(os.getenv("PROJECT_DIR", "/snap-plugin-collector-psutil"))
 
         log.info("starting snapd")
         self.binaries.snapd.start()
@@ -114,7 +114,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         log.info("stopping snapd")
         self.binaries.snapd.stop()
         if self.binaries.snapd.isAlive():
-            log.warn("snapd thread did not died")
+            log.warn("snapd thread did not die")
 
 if __name__ == "__main__":
     test_suite = unittest.TestLoader().loadTestsFromTestCase(PsutilCollectorLargeTest)
