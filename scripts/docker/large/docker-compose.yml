@@ -6,6 +6,6 @@ services:
     network_mode: "host"
     volumes:
       - ${PLUGIN_SRC}:/${PROJECT_NAME}
-    entrypoint: sh -c 'python /snap-plugin-collector-psutil/scripts/test/large.py'
+    entrypoint: sh -c 'python /${PROJECT_NAME}/scripts/test/large.py'
     environment:
-      PROJECT_NAME: ${PROJECT_NAME}
+      PROJECT_DIR: /${PROJECT_NAME}

@@ -1,0 +1,19 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata: 
+    name: psutil-deployment
+spec:
+    replicas: 1
+    template:
+        metadata:
+          labels:
+            app: psutil-large-test
+        spec:
+          containers:
+            - name: psutil-large-test
+              image: mkrolik/snap-pytest
+              imagePullPolicy: "IfNotPresent"
+              command:
+                - sleep
+                - "3000"
