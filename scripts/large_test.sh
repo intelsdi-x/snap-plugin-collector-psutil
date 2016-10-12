@@ -27,9 +27,6 @@ __proj_name="$(basename $__proj_dir)"
 
 . "${__dir}/common.sh"
 
-#_info "updating repository submodule with pytest"
-cd ${__proj_dir} && git submodule update --init --recursive
-
 export PROJECT_DIR="${__proj_dir}"
 
 #_info "execute large test"

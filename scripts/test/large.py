@@ -19,9 +19,9 @@ import sys
 import os
 import unittest
 
-from pytest import bins
-from pytest import utils
-from pytest.logger import log
+from spytest import bins
+from spytest import utils
+from spytest.logger import log
 from unittest import TextTestRunner
 
 
@@ -31,11 +31,11 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         plugins_dir = os.getenv("PLUGINS_DIR", "/etc/snap/plugins")
         snap_dir = os.getenv("SNAP_DIR", "/usr/local/bin")
 
-        snapd_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapd"
-        snapctl_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snapctl"
+        snapd_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snapd"
+        snapctl_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snapctl"
         psutil_url = "http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-psutil/latest_build/linux/x86_64/snap-plugin-collector-psutil"
-        passthru_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-processor-passthru"
-        mockfile_url = "http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-publisher-mock-file"
+        passthru_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-processor-passthru"
+        mockfile_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-publisher-mock-file"
 
         # set and download required binaries (snapd, snapctl, plugins)
         self.binaries = bins.Binaries()

@@ -16,8 +16,8 @@ PLUGIN_PATH=${PLUGIN_PATH:-"${TMPDIR}/snap/plugins"}
 mkdir -p $PLUGIN_PATH
 
 _info "downloading plugins"
-(cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-publisher-mock-file && chmod 755 snap-plugin-publisher-mock-file)
-(cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/snap/master/latest/snap-plugin-processor-passthru && chmod 755 snap-plugin-processor-passthru)
+(cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-publisher-mock-file && chmod 755 snap-plugin-publisher-mock-file)
+(cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-processor-passthru && chmod 755 snap-plugin-processor-passthru)
 (cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-psutil/latest_build/linux/x86_64/snap-plugin-collector-psutil && chmod 755 snap-plugin-collector-psutil)
 
 SNAP_FLAG=0

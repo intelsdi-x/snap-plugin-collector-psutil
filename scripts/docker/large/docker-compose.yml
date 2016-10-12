@@ -2,7 +2,7 @@ version: '2'
 services:
   main:
     container_name: psutil_large_test
-    image: python:2.7.12-alpine
+    image: mkrolik/spytest
     network_mode: "host"
     volumes:
       - ${PLUGIN_SRC}:/${PROJECT_NAME}

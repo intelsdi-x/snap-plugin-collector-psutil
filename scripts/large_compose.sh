@@ -41,9 +41,6 @@ _docker_project () {
   cd "${docker_folder}" && "$@"
 }
 
-_debug "updating repository submodule with pytest"
-git submodule update --init --recursive
-
 _debug "building docker compose images"
 _docker_project docker-compose build
 _debug "running test: ${TEST_TYPE}"
