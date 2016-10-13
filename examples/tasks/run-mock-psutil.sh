@@ -16,7 +16,7 @@ export PLUGIN_SRC="${__proj_dir}"
 . "${__proj_dir}/examples/tasks/.setup.sh"
 
 # downloads plugins, starts snap, load plugins and start a task
-__id=$(docker run -e SNAP_VERSION=latest -d -v ${PLUGIN_SRC}:/${__proj_name} --net=host intelsdi/snap:alpine)
+__id=$(docker run -e SNAP_VERSION=latest -d -v ${PLUGIN_SRC}:/${__proj_name} --net=host mkrolik/snap-pytest)
 # clean up containers on exit
 function finish {
   (docker kill ${__id})
