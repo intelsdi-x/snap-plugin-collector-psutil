@@ -179,10 +179,9 @@ func getCPUTimeValue(stat *cpu.TimesStat, name string) (float64, error) {
 
 func getCPUTimesMetricTypes() ([]plugin.MetricType, error) {
 	//passing true to CPUTimes indicates per CPU
-	//CPUTimes does not currently work on OSX https://github.com/shirou/gopsutil/issues/31
 	mts := []plugin.MetricType{}
 	switch runtime.GOOS {
-	case "linux":
+	case "linux", "darwin":
 		for k, label := range cpuLabels {
 			mts = append(mts, plugin.MetricType{
 				Namespace_:   core.NewNamespace("intel", "psutil", "cpu").AddDynamicElement("cpu_id", "physical cpu id").AddStaticElement(k),
@@ -195,7 +194,6 @@ func getCPUTimesMetricTypes() ([]plugin.MetricType, error) {
 				Unit_:        label.unit,
 			})
 		}
-
 	default:
 		return nil, fmt.Errorf("%s not supported by plugin", runtime.GOOS)
 	}
