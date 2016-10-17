@@ -41,7 +41,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         self.binaries = bins.Binaries()
         self.binaries.snapd = bins.Snapd(snapd_url, snap_dir)
         self.binaries.snapctl = bins.Snapctl(snapctl_url, snap_dir)
-        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 7)
+        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 8)
         self.binaries.processor = bins.Plugin(passthru_url, plugins_dir, "processor", -1)
         self.binaries.publisher = bins.Plugin(mockfile_url, plugins_dir, "publisher", -1)
 
