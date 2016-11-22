@@ -124,23 +124,23 @@ Namespace | Description (optional)
 /intel/psutil/vm/wired | memory that is marked to always stay in RAM. It is never moved to disk
 
 ### Examples
-Example running psutil, passthru processor, and writing data to a file.
+This is an example running psutil and writing data to a file. It is assumed that you are using the latest Snap binary and plugins.
 
-This is done from the snap directory.
+The example is run from a directory which includes snaptel, snapteld, along with the plugins and task file.
 
-In one terminal window, open the snap daemon (in this case with logging set to 1 and trust disabled):
+In one terminal window, open the Snap daemon (in this case with logging set to 1 and trust disabled):
 ```
-$ $SNAP_PATH/bin/snapd -l 1 -t 0
+$ snapteld -l 1 -t 0
 ```
 
 In another terminal window:
 Load psutil plugin
 ```
-$ $SNAP_PATH/bin/snapctl plugin load 
+$ snaptel plugin load snap-plugin-collector-psutil
 ```
 See available metrics for your system
 ```
-$ $SNAP_PATH/bin/snapctl metric list
+$ snaptel metric list
 ```
 
 Create a task manifest file (e.g. `task-psutil.json`):    
@@ -169,41 +169,22 @@ Create a task manifest file (e.g. `task-psutil.json`):
                     "user": "root"
                 }
             },
-            "process": [
-                {
-                    "plugin_name": "passthru",
-                    "process": null,
-                    "publish": [
-                        {                         
-                            "plugin_name": "file",
-                            "config": {
-                                "file": "/tmp/published_psutil"
-                            }
-                        }
-                    ],
-                    "config": null
+            "publish": [
+                {                         
+                    "plugin_name": "file",
+                    "config": {
+                        "file": "/tmp/published_psutil"
+                    }
                 }
-            ],
-            "publish": null
+            ]
         }
     }
 }
 ```
 
-Load passthru plugin for processing:
-```
-$ $SNAP_PATH/bin/snapctl plugin load build/plugin/snap-processor-passthru
-Plugin loaded
-Name: passthru
-Version: 1
-Type: processor
-Signed: false
-Loaded Time: Fri, 20 Nov 2015 11:44:03 PST
-```
-
 Load file plugin for publishing:
 ```
-$ $SNAP_PATH/bin/snapctl plugin load build/plugin/snap-publisher-file
+$ snaptel plugin load snap-plugin-publisher-file
 Plugin loaded
 Name: file
 Version: 3
@@ -214,7 +195,7 @@ Loaded Time: Fri, 20 Nov 2015 11:41:39 PST
 
 Create task:
 ```
-$ $SNAP_PATH/bin/snapctl task create -t examples/tasks/psutil-file.json
+$ snaptel task create -t task-psutil.json
 Using task manifest to create task
 Task created
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
@@ -240,7 +221,7 @@ See file output (this is just part of the file):
 
 Stop task:
 ```
-$ $SNAP_PATH/bin/snapctl task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
+$ snaptel task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
 Task stopped:
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
