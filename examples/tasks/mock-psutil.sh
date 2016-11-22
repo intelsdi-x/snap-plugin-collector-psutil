@@ -22,32 +22,32 @@ _info "downloading plugins"
 
 SNAP_FLAG=0
 
-# this block will wait check if snapctl and snapd are loaded before the plugins are loaded and the task is started
+# this block will wait check if snaptel and snapteld are loaded before the plugins are loaded and the task is started
  for i in `seq 1 10`; do
-             if [[ -f /usr/local/bin/snapctl && -f /usr/local/bin/snapd ]];
+             if [[ -f /usr/local/bin/snaptel && -f /usr/local/sbin/snapteld ]];
                 then
 
                     _info "loading plugins"
-                    snapctl plugin load "${PLUGIN_PATH}/snap-plugin-publisher-mock-file"
-                    snapctl plugin load "${PLUGIN_PATH}/snap-plugin-collector-psutil"
-                    snapctl plugin load "${PLUGIN_PATH}/snap-plugin-processor-passthru"
+                    snaptel plugin load "${PLUGIN_PATH}/snap-plugin-publisher-mock-file"
+                    snaptel plugin load "${PLUGIN_PATH}/snap-plugin-collector-psutil"
+                    snaptel plugin load "${PLUGIN_PATH}/snap-plugin-processor-passthru"
 
                     _info "creating and starting a task"
-                    snapctl task create -t "${__dir}/task-psutil.json"
+                    snaptel task create -t "${__dir}/task-psutil.json"
 
                     SNAP_FLAG=1
 
                     break
              fi 
         
-        _info "snapctl and/or snapd are unavailable, sleeping for 5 seconds"
+        _info "snaptel and/or snapteld are unavailable, sleeping for 5 seconds"
         sleep 5
 done 
 
 
-# check if snapctl/snapd have loaded
+# check if snaptel/snapteld have loaded
 if [ $SNAP_FLAG -eq 0 ]
     then
-     echo "Could not load snapctl or snapd"
+     echo "Could not load snaptel or snapteld"
      exit 1
 fi
