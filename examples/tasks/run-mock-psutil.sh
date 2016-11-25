@@ -23,4 +23,4 @@ function finish {
 }
 trap finish EXIT INT TERM
 
-docker exec -it ${__id} bash -c "PLUGIN_PATH=/etc/snap/plugins /${__proj_name}/examples/tasks/mock-psutil.sh && printf \"\n\nhint: type 'snapctl task list'\ntype 'exit' when your done\n\n\" && bash"
+docker exec -it ${__id} bash -c "PLUGIN_PATH=/etc/snap/plugins /${__proj_name}/examples/tasks/mock-psutil.sh && printf \"\n\nhint: type 'snaptel task list'\ntype 'exit' when your done\n\n\" && bash"
