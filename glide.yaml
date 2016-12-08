@@ -1,10 +1,19 @@
 package: github.com/intelsdi-x/snap-plugin-collector-psutil
 import:
 - package: github.com/intelsdi-x/snap
-  version: e3164017505aa87d70fa9248769c8b6edc13ac08
+  version: ^1.0.0
+  subpackages:
+  - control/plugin
+  - control/plugin/cpolicy
+  - core
 - package: github.com/shirou/gopsutil
-  version: fc800d3fb423e37fe8e44338e380bc6b551dcf36
+  subpackages:
+  - cpu
+  - load
+  - mem
+  - net
 testImport:
 - package: github.com/smartystreets/goconvey
+  version: ^1.6.2
   subpackages:
   - convey

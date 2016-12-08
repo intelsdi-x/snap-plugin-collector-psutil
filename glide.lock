@@ -1,0 +1,60 @@
+hash: 3acef7b72c48757eab42b1281fde0d9c37c99b48c0b2fdec3674d62ca59dec18
+updated: 2016-12-06T14:41:38.318524602-08:00
+imports:
+- name: github.com/go-ole/go-ole
+  version: 5e9c030faf78847db7aa77e3661b9cc449de29b7
+  subpackages:
+  - oleutil
+- name: github.com/intelsdi-x/snap
+  version: 8905198aaab5bfb6d50a747477ca401e3a7a33ab
+  subpackages:
+  - control/plugin
+  - control/plugin/cpolicy
+  - control/plugin/encoding
+  - control/plugin/encrypter
+  - core
+  - core/cdata
+  - core/ctypes
+  - core/serror
+  - pkg/ctree
+  - pkg/schedule
+  - pkg/stringutils
+  - scheduler/wmap
+- name: github.com/robfig/cron
+  version: 32d9c273155a0506d27cf73dd1246e86a470997e
+- name: github.com/shirou/gopsutil
+  version: 449c8250b0e837d670b2f9e7337e90ad00514b0c
+  subpackages:
+  - cpu
+  - internal/common
+  - load
+  - mem
+  - net
+- name: github.com/Sirupsen/logrus
+  version: be52937128b38f1d99787bb476c789e2af1147f1
+- name: github.com/StackExchange/wmi
+  version: e54cbda6595d7293a7a468ccf9525f6bc8887f99
+- name: golang.org/x/sys
+  version: 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
+  subpackages:
+  - unix
+- name: gopkg.in/yaml.v2
+  version: c1cd2254a6dd314c9d73c338c12688c9325d85c6
+testImports:
+- name: github.com/gopherjs/gopherjs
+  version: 4b53e1bddba0e2f734514aeb6c02db652f4c6fe8
+  subpackages:
+  - js
+- name: github.com/jtolds/gls
+  version: 8ddce2a84170772b95dd5d576c48d517b22cac63
+- name: github.com/smartystreets/assertions
+  version: 443d812296a84445c202c085f19e18fc238f8250
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
+- name: github.com/smartystreets/goconvey
+  version: d4c757aa9afd1e2fc1832aaab209b5794eb336e1
+  subpackages:
+  - convey
+  - convey/gotest
+  - convey/reporting
