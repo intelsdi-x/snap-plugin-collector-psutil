@@ -12,8 +12,8 @@ spec:
         spec:
           containers:
             - name: psutil-large-test
-              image: mkrolik/snap-pytest
-              imagePullPolicy: "IfNotPresent"
+              image: mkrolik/snap-pytest:v1
+              imagePullPolicy: "Always"
               command:
                 - sleep
                 - "3000"

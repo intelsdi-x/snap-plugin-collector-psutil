@@ -1,37 +1,30 @@
 {
-    "version": 1,
-    "schedule": {
-        "type": "simple",
-        "interval": "1s"
-    },
-    "workflow": {
-        "collect": {
-            "metrics": {
-                "/intel/psutil/load/load1": {},
-                "/intel/psutil/load/load5": {},
-                "/intel/psutil/load/load15": {},
-                "/intel/psutil/vm/available": {},
-                "/intel/psutil/vm/free": {},
-                "/intel/psutil/vm/used": {},
-                "/intel/psutil/cpu/*/user": {},
-                "/intel/psutil/net/all/bytes_sent": {}
-            },
-            "process": [
-                {
-                    "plugin_name": "passthru",
-                    "process": null,
-                    "publish": [
-                        {
-                            "plugin_name": "mock-file",
-                            "config": {
-                                "file": "/tmp/published_psutil"
-                            }
-                        }
-                    ],
-                    "config": null
-                }
-            ],
-            "publish": null
+  "version": 1,
+  "schedule": {
+    "type": "simple",
+    "interval": "1s"
+  },
+  "workflow": {
+    "collect": {
+      "metrics": {
+        "/intel/psutil/load/load1": {},
+        "/intel/psutil/load/load5": {},
+        "/intel/psutil/load/load15": {},
+        "/intel/psutil/vm/available": {},
+        "/intel/psutil/vm/free": {},
+        "/intel/psutil/vm/used": {},
+        "/intel/psutil/cpu/*/user": {},
+        "/intel/psutil/net/all/bytes_sent": {}
+      },
+      "publish": [
+        {
+          "plugin_name": "file",
+          "config": {
+            "file": "/tmp/published_psutil"
+          }
         }
+      ],
+      "publish": null
     }
+  }
 }
