@@ -116,7 +116,6 @@ Namespace | Description (optional)
 /intel/psutil/vm/cached | cache for various things
 /intel/psutil/vm/free | memory not being used at all (zeroed) that is readily available; note that this doesn't reflect the actual memory available (use 'available' instead).
 /intel/psutil/vm/inactive | memory that is marked as not used
-/intel/psutil/vm/shared | memory that may be simultaneously accessed by multiple processes
 /intel/psutil/vm/total | total physical memory available
 /intel/psutil/vm/used | memory used, calculated differently depending on the platform and designed for informational purposes only.
 /intel/psutil/vm/used_percent | percent memory used
