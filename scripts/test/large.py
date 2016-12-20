@@ -34,16 +34,14 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         snapteld_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snapteld"
         snaptel_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snaptel"
         psutil_url = "http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-psutil/latest_build/linux/x86_64/snap-plugin-collector-psutil"
-        passthru_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-processor-passthru"
-        mockfile_url = "http://snap.ci.snap-telemetry.io/snap/latest_build/linux/x86_64/snap-plugin-publisher-mock-file"
+        file_url = "http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest_build/linux/x86_64/snap-plugin-publisher-file"
 
         # set and download required binaries (snapteld, snaptel, plugins)
         self.binaries = bins.Binaries()
         self.binaries.snapteld = bins.Snapteld(snapteld_url, snap_dir)
         self.binaries.snaptel = bins.Snaptel(snaptel_url, snap_dir)
-        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 8)
-        self.binaries.processor = bins.Plugin(passthru_url, plugins_dir, "processor", -1)
-        self.binaries.publisher = bins.Plugin(mockfile_url, plugins_dir, "publisher", -1)
+        self.binaries.collector = bins.Plugin(psutil_url, plugins_dir, "collector", 9)
+        self.binaries.publisher = bins.Plugin(file_url, plugins_dir, "publisher", -1)
 
         utils.download_binaries(self.binaries)
 
@@ -72,7 +70,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         plugins = self.binaries.snaptel.list_plugins()
         tasks = self.binaries.snaptel.list_tasks()
         self.assertGreater(len(metrics), 0, "Metrics available {} expected {}".format(len(metrics), 0))
-        self.assertEqual(len(plugins), 3, "Plugins available {} expected {}".format(len(plugins), 3))
+        self.assertEqual(len(plugins), 2, "Plugins available {} expected {}".format(len(plugins), 2))
         self.assertEqual(len(tasks), 0, "Tasks available {} expected {}".format(len(tasks), 0))
 
         # check config policy for metric
@@ -104,7 +102,7 @@ class PsutilCollectorLargeTest(unittest.TestCase):
         metrics = self.binaries.snaptel.list_metrics()
         plugins = self.binaries.snaptel.list_plugins()
         self.assertEqual(len(metrics), 0, "Metrics available {} expected {}".format(len(metrics), 0))
-        self.assertEqual(len(plugins), 2, "Plugins available {} expected {}".format(len(plugins), 2))
+        self.assertEqual(len(plugins), 1, "Plugins available {} expected {}".format(len(plugins), 1))
 
         # check for snapteld errors
         self.assertEqual(len(self.binaries.snapteld.errors), 0, "Errors found during snapteld execution:\n{}"
