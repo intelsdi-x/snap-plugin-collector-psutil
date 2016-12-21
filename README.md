@@ -109,6 +109,8 @@ Namespace | Description (optional)
 /intel/psutil/net/[INTERFACE]/errout | total number of errors while sending on given interface
 /intel/psutil/net/[INTERFACE]/packets_recv | number of packets received on given interface
 /intel/psutil/net/[INTERFACE]/packets_sent | number of packets sent on given interface
+/intel/psutil/net/conntrackcount | number of "sessions" (connection tracking entries) 
+/intel/psutil/net/conntrackmax | the maximum number of "sessions" (connection tracking entries) that can be handled simultaneously by netfilter in kernel memory
 |
 /intel/psutil/vm/active | memory currently in use or very recently used, and so it is in RAM
 /intel/psutil/vm/available | the actual amount of available memory that can be given instantly to processes that request more memory in bytes; this is calculated by summing different memory values depending on the platform (e.g. free + buffers + cached on Linux) and it is supposed to be used to monitor actual memory usage in a cross platform fashion
