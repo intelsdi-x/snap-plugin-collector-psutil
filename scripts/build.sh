@@ -40,15 +40,21 @@ export CGO_ENABLED=0
 _debug "removing: ${build_dir:?}/*"
 rm -rf "${build_dir:?}/"*
 
-_info "building plugin: ${plugin_name}"
+_info "building plugin: ${plugin_name} for Linux"
 export GOOS=linux
 export GOARCH=amd64
 mkdir -p "${build_dir}/${GOOS}/x86_64"
 "${go_build[@]}" -o "${build_dir}/${GOOS}/x86_64/${plugin_name}" . || exit 1
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-  export CGO_ENABLED=1
+_info "building plugin: ${plugin_name} for Windows"
+export GOOS=windows
+export GOARCH=amd64
+mkdir -p "${build_dir}/${GOOS}/x86_64"
+"${go_build[@]}" -o "${build_dir}/${GOOS}/x86_64/${plugin_name}.exe" . || exit 1
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+_info "building plugin: ${plugin_name} for Darwin"
+  export CGO_ENABLED=1
   export GOOS=darwin
   export GOARCH=amd64
   mkdir -p "${build_dir}/${GOOS}/x86_64"
