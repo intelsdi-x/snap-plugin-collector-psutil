@@ -20,17 +20,19 @@ package psutil
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
 	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
 	// Name of plugin
 	name = "psutil"
 	// Version of plugin
-	version = 9
+	version = 10
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 )
@@ -52,6 +54,7 @@ func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, e
 	cpuReqs := []core.Namespace{}
 	memReqs := []core.Namespace{}
 	netReqs := []core.Namespace{}
+	diskReqs := []core.Namespace{}
 
 	for _, m := range mts {
 		ns := m.Namespace()
@@ -64,6 +67,8 @@ func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, e
 			memReqs = append(memReqs, ns)
 		case "net":
 			netReqs = append(netReqs, ns)
+		case "disk":
+			diskReqs = append(diskReqs, ns)
 		default:
 			return nil, fmt.Errorf("Requested metric %s does not match any known psutil metric", m.Namespace().String())
 		}
@@ -94,6 +99,12 @@ func (p *Psutil) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, e
 		return nil, err
 	}
 	metrics = append(metrics, netMts...)
+	mounts := getMountpoints(mts[0].Config().Table())
+	diskMts, err := getDiskUsageMetrics(diskReqs, mounts)
+	if err != nil {
+		return nil, err
+	}
+	metrics = append(metrics, diskMts...)
 
 	return metrics, nil
 }
@@ -115,6 +126,7 @@ func (p *Psutil) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error
 		return nil, err
 	}
 	mts = append(mts, mts_...)
+	mts = append(mts, getDiskUsageMetricTypes()...)
 
 	return mts, nil
 }
@@ -122,7 +134,27 @@ func (p *Psutil) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error
 //GetConfigPolicy returns a ConfigPolicy
 func (p *Psutil) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	c := cpolicy.New()
+	config := cpolicy.NewPolicyNode()
+	r, err := cpolicy.NewStringRule("mount_points", false)
+
+	if err != nil {
+		return nil, err
+	}
+	r.Description = "Mountpoints"
+	config.Add(r)
+	c.Add([]string{"intel", "psutil", "disk"}, config)
 	return c, nil
+}
+
+func getMountpoints(cfg map[string]ctypes.ConfigValue) []string {
+	if mp, ok := cfg["mount_points"]; ok {
+		if mp.(ctypes.ConfigValueStr).Value == "*" {
+			return []string{"all"}
+		}
+		mountPoints := strings.Split(mp.(ctypes.ConfigValueStr).Value, "|")
+		return mountPoints
+	}
+	return []string{"physical"}
 }
 
 type label struct {

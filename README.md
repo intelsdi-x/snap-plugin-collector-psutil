@@ -50,7 +50,10 @@ This builds the plugin in `./build/`
 ### Configuration and Usage
 * Set up the [Snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
 
-Some metrics are platform specific (see [gopsutil's current status](https://github.com/shirou/gopsutil/blob/master/README.rst#current-status)). 
+Some metrics are platform specific (see [gopsutil's current status](https://github.com/shirou/gopsutil/blob/master/README.rst#current-status)).
+
+Available configuration option:
+* mount_points - configuration of mount points to monitor, multiple paths should be separated with "|", e.g. "/|/dev|/run", default is set to collect only physical devices (hard disks, cd-rom, USB). Passing `*` enables collect data from all mount points.
 
 ## Documentation
 There are a number of other resources you can review to learn to use this plugin:
@@ -89,6 +92,11 @@ Namespace | Description (optional)
 /intel/psutil/cpu/[CPU]/system | time spent in system mode
 /intel/psutil/cpu/[CPU]/user | time spent in user mode
 |
+/intel/psutil/disk/[mount_point]/total | total space which is available to root in mount point
+/intel/psutil/disk/[mount_point]/used | total space being used in general in mount point
+/intel/psutil/disk/[mount_point]/free | remaining free space usable by user mount point
+/intel/psutil/disk/[mount_point]/percent | user usage percent compared to the total amount of space the user can use in mount point
+|
 /intel/psutil/load/load1 | load average over the last 1 minute
 /intel/psutil/load/load15 | load average over the last 15 minutes
 /intel/psutil/load/load5 | load average over the last 5 minutes
@@ -120,6 +128,8 @@ Namespace | Description (optional)
 /intel/psutil/vm/used | memory used, calculated differently depending on the platform and designed for informational purposes only.
 /intel/psutil/vm/used_percent | percent memory used
 /intel/psutil/vm/wired | memory that is marked to always stay in RAM. It is never moved to disk
+
+*Please note that there is no possibility to request specific instance of dynamic disk metric passing it via requested metric in task manifest. I collect metrics based on configured mount points
 
 ### Examples
 This is an example running psutil and writing data to a file. It is assumed that you are using the latest Snap binary and plugins.
