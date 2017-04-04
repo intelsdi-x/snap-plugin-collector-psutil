@@ -62,6 +62,17 @@ var netIOCounterLabels = map[string]label{
 	},
 }
 
+var netConntrackCounterLabels = map[string]label{
+	"conntrackcount": label{
+		unit:        "",
+		description: "",
+	},
+	"conntrackmax": label{
+		unit:        "",
+		description: "",
+	},
+}
+
 func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 	// gather accumulated metrics for all interfaces
 	netsAll, err := net.IOCounters(false)
@@ -75,13 +86,21 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 		return nil, err
 	}
 
+	// gather conntrack metric
+	conntrack, err := net.FilterCounters()
+	if err != nil {
+		// Conntrack probably not loaded into the kernel.
+		fmt.Printf("Requested netfilter statistics %s not found", err)
+	}
+
 	results := []plugin.MetricType{}
 
 	for _, ns := range nss {
 		// set requested metric name from last namespace element
 		metricName := ns.Element(len(ns) - 1).Value
 		// check if requested metric is dynamic (requesting metrics for all nics)
-		if ns[3].Value == "*" {
+		switch ns[3].Value {
+		case "*":
 			for _, net := range netsNic {
 				// prepare namespace copy to update value
 				// this will allow to keep namespace as dynamic (name != "")
@@ -102,7 +121,28 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 				}
 				results = append(results, metric)
 			}
-		} else {
+		case "netfilter":
+			if ns[4].Value == "conntrackcount" {
+				metric := plugin.MetricType{
+					Namespace_: ns,
+					Data_:      conntrack[0].ConnTrackCount,
+					Timestamp_: time.Now(),
+					Unit_:      netConntrackCounterLabels[metricName].unit,
+				}
+				results = append(results, metric)
+			}
+
+			if ns[4].Value == "conntrackmax" {
+				metric := plugin.MetricType{
+					Namespace_: ns,
+					Data_:      conntrack[0].ConnTrackMax,
+					Timestamp_: time.Now(),
+					Unit_:      netConntrackCounterLabels[metricName].unit,
+				}
+				results = append(results, metric)
+			}
+
+		default:
 			stats := append(netsAll, netsNic...)
 			// find stats for interface name or all nics
 			stat := findNetIOStats(stats, ns[3].Value)
@@ -174,6 +214,14 @@ func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
 		mts = append(mts, plugin.MetricType{
 			Namespace_: core.NewNamespace("intel", "psutil", "net").
 				AddDynamicElement("nic_id", "network interface id").AddStaticElement(name),
+			Description_: label.description,
+			Unit_:        label.unit,
+		})
+	}
+
+	for name, label := range netConntrackCounterLabels {
+		mts = append(mts, plugin.MetricType{
+			Namespace_:   core.NewNamespace("intel", "psutil", "net", "netfilter", name),
 			Description_: label.description,
 			Unit_:        label.unit,
 		})
