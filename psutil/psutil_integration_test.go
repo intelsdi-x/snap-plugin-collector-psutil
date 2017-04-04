@@ -27,6 +27,8 @@ import (
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap/core/ctypes"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -34,18 +36,28 @@ func TestPsutilCollectMetrics(t *testing.T) {
 	Convey("psutil collector", t, func() {
 		p := &Psutil{}
 		Convey("collect metrics", func() {
+			cfg := plugin.NewPluginConfigType()
+			cfg.AddItem("mount_points", ctypes.ConfigValueStr{"/|/dev|/run"})
 			mts := []plugin.MetricType{
 				plugin.MetricType{
 					Namespace_: core.NewNamespace("intel", "psutil", "load", "load1"),
+					Config_:    cfg.ConfigDataNode,
 				},
 				plugin.MetricType{
 					Namespace_: core.NewNamespace("intel", "psutil", "load", "load5"),
+					Config_:    cfg.ConfigDataNode,
 				},
 				plugin.MetricType{
 					Namespace_: core.NewNamespace("intel", "psutil", "load", "load15"),
+					Config_:    cfg.ConfigDataNode,
 				},
 				plugin.MetricType{
 					Namespace_: core.NewNamespace("intel", "psutil", "vm", "total"),
+					Config_:    cfg.ConfigDataNode,
+				},
+				plugin.MetricType{
+					Namespace_: core.NewNamespace("intel", "psutil", "disk", "used"),
+					Config_:    cfg.ConfigDataNode,
 				},
 			}
 			if runtime.GOOS != "darwin" {
