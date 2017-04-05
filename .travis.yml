@@ -1,5 +1,5 @@
 # File managed by pluginsync
-sudo: false
+sudo: true
 language: go
 go:
 - 1.6.3
