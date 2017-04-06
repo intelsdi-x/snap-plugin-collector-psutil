@@ -91,16 +91,13 @@ Namespace | Description (optional)
 /intel/psutil/cpu/[CPU]/stolen |
 /intel/psutil/cpu/[CPU]/system | time spent in system mode
 /intel/psutil/cpu/[CPU]/user | time spent in user mode
-|
 /intel/psutil/disk/[mount_point]/total | total space which is available to root in mount point
 /intel/psutil/disk/[mount_point]/used | total space being used in general in mount point
 /intel/psutil/disk/[mount_point]/free | remaining free space usable by user mount point
 /intel/psutil/disk/[mount_point]/percent | user usage percent compared to the total amount of space the user can use in mount point
-|
 /intel/psutil/load/load1 | load average over the last 1 minute
 /intel/psutil/load/load15 | load average over the last 15 minutes
 /intel/psutil/load/load5 | load average over the last 5 minutes
-|
 /intel/psutil/net/all/bytes_recv | number of bytes sent
 /intel/psutil/net/all/bytes_sent | number of bytes received
 /intel/psutil/net/all/dropin | total number of incoming packets which were dropped
@@ -117,7 +114,6 @@ Namespace | Description (optional)
 /intel/psutil/net/[INTERFACE]/errout | total number of errors while sending on given interface
 /intel/psutil/net/[INTERFACE]/packets_recv | number of packets received on given interface
 /intel/psutil/net/[INTERFACE]/packets_sent | number of packets sent on given interface
-|
 /intel/psutil/vm/active | memory currently in use or very recently used, and so it is in RAM
 /intel/psutil/vm/available | the actual amount of available memory that can be given instantly to processes that request more memory in bytes; this is calculated by summing different memory values depending on the platform (e.g. free + buffers + cached on Linux) and it is supposed to be used to monitor actual memory usage in a cross platform fashion
 /intel/psutil/vm/buffers | cache for things like file system metadata
