@@ -22,18 +22,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/shirou/gopsutil/mem"
 )
 
-func virtualMemory(nss []core.Namespace) ([]plugin.MetricType, error) {
+func virtualMemory(nss []plugin.Namespace) ([]plugin.Metric, error) {
+	defer timeSpent(time.Now(), "virtualMemory")
 	mem, err := mem.VirtualMemory()
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]plugin.MetricType, len(nss))
+	results := make([]plugin.Metric, len(nss))
 
 	for i, ns := range nss {
 		var data interface{}
@@ -60,82 +60,83 @@ func virtualMemory(nss []core.Namespace) ([]plugin.MetricType, error) {
 		case "wired":
 			data = mem.Wired
 		default:
-			return nil, fmt.Errorf("Requested memory statistic %s is not found", ns.String())
+			return nil, fmt.Errorf("Requested memory statistic %s is not found", ns.Strings())
 		}
 
-		results[i] = plugin.MetricType{
-			Namespace_: ns,
-			Data_:      data,
-			Unit_:      "B",
-			Timestamp_: time.Now(),
+		results[i] = plugin.Metric{
+			Namespace: ns,
+			Data:      data,
+			Unit:      "B",
+			Timestamp: time.Now(),
 		}
 	}
 
 	return results, nil
 }
 
-func getVirtualMemoryMetricTypes() []plugin.MetricType {
-	return []plugin.MetricType{
-		plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "vm", "total"),
-			Unit_:        "B",
-			Description_: "total swap memory in bytes",
+func getVirtualMemoryMetricTypes() []plugin.Metric {
+	defer timeSpent(time.Now(), "getVirtualMemoryMetricTypes")
+	return []plugin.Metric{
+		plugin.Metric{
+			Namespace:   plugin.NewNamespace("intel", "psutil", "vm", "total"),
+			Unit:        "B",
+			Description: "total swap memory in bytes",
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "available"),
-			Unit_:      "B",
-			Description_: `the actual amount of available memory that can be 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "available"),
+			Unit:      "B",
+			Description: `the actual amount of available memory that can be 
 			given instantly to processes that request more memory in bytes; 
 			this is calculated by summing different memory values depending 
 			on the platform (e.g. free + buffers + cached on Linux) and it 
 			is supposed to be used to monitor actual memory usage in a cross 
 			platform fashion.`,
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "used"),
-			Unit_:      "B",
-			Description_: `Memory used is calculated differently depending on 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "used"),
+			Unit:      "B",
+			Description: `Memory used is calculated differently depending on 
 			the platform and designed for informational purposes only.`,
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "used_percent"),
-			Unit_:      "B",
-			Description_: `the percentage usage calculated as (total - available) 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "used_percent"),
+			Unit:      "B",
+			Description: `the percentage usage calculated as (total - available) 
 			/ total * 100.`,
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "free"),
-			Description_: `memory not being used at all (zeroed) that is readily 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "free"),
+			Description: `memory not being used at all (zeroed) that is readily 
 			available; note that this doesn’t reflect the actual memory available 
 			(use ‘available’ instead).`,
-			Unit_: "B",
+			Unit: "B",
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "active"),
-			Description_: `(UNIX): memory currently in use or very recently used, 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "active"),
+			Description: `(UNIX): memory currently in use or very recently used, 
 			and so it is in RAM.`,
-			Unit_: "B",
+			Unit: "B",
 		},
-		plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "vm", "inactive"),
-			Description_: `(UNIX): memory that is marked as not used.`,
-			Unit_:        "B",
+		plugin.Metric{
+			Namespace:   plugin.NewNamespace("intel", "psutil", "vm", "inactive"),
+			Description: `(UNIX): memory that is marked as not used.`,
+			Unit:        "B",
 		},
-		plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "vm", "buffers"),
-			Description_: `(Linux, BSD): cache for things like file system metadata.`,
-			Unit_:        "B",
+		plugin.Metric{
+			Namespace:   plugin.NewNamespace("intel", "psutil", "vm", "buffers"),
+			Description: `(Linux, BSD): cache for things like file system metadata.`,
+			Unit:        "B",
 		},
-		plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "vm", "cached"),
-			Description_: `(Linux, BSD): cache for various things.`,
-			Unit_:        "B",
+		plugin.Metric{
+			Namespace:   plugin.NewNamespace("intel", "psutil", "vm", "cached"),
+			Description: `(Linux, BSD): cache for various things.`,
+			Unit:        "B",
 		},
-		plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "vm", "wired"),
-			Description_: `(BSD, OSX): memory that is marked to always stay in RAM. 
+		plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "vm", "wired"),
+			Description: `(BSD, OSX): memory that is marked to always stay in RAM. 
 			It is never moved to disk.`,
-			Unit_: "B",
+			Unit: "B",
 		},
 	}
 }

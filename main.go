@@ -18,19 +18,18 @@ limitations under the License.
 
 package main
 
+// Import the snap plugin library
 import (
-	"os"
-	// Import the snap plugin library
-	"github.com/intelsdi-x/snap/control/plugin"
-	// Import our collector plugin implementation
 	"github.com/intelsdi-x/snap-plugin-collector-psutil/psutil"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
+)
+
+const (
+	pluginName    = "psutil"
+	pluginVersion = 11
 )
 
 // plugin bootstrap
 func main() {
-	plugin.Start(
-		psutil.Meta(),
-		psutil.NewPsutilCollector(), // CollectorPlugin interface
-		os.Args[1],
-	)
+	plugin.StartCollector(psutil.NewPsutilCollector(), pluginName, pluginVersion)
 }

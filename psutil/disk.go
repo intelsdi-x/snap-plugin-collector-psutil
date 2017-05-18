@@ -24,11 +24,11 @@ import (
 
 	"github.com/shirou/gopsutil/disk"
 
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 )
 
 func getPSUtilDiskUsage(path string) (*disk.UsageStat, error) {
+	defer timeSpent(time.Now(), "getPSUtilDiskUsage")
 	disk_usage, err := disk.Usage(path)
 	if err != nil {
 		return nil, err
@@ -36,12 +36,13 @@ func getPSUtilDiskUsage(path string) (*disk.UsageStat, error) {
 	return disk_usage, nil
 }
 
-func getDiskUsageMetrics(nss []core.Namespace, mounts []string) ([]plugin.MetricType, error) {
+func getDiskUsageMetrics(nss []plugin.Namespace, mounts []string) ([]plugin.Metric, error) {
+	defer timeSpent(time.Now(), "getDiskUsageMetrics")
 	t := time.Now()
 	var paths []disk.PartitionStat
-	metrics := []plugin.MetricType{}
+	metrics := []plugin.Metric{}
 	namespaces := map[string][]string{}
-	requested := map[string]core.Namespace{}
+	requested := map[string]plugin.Namespace{}
 	for _, ns := range nss {
 		namespaces[ns.Strings()[len(ns.Strings())-1]] = ns.Strings()
 		requested[ns.Strings()[len(ns.Strings())-1]] = ns
@@ -81,47 +82,47 @@ func getDiskUsageMetrics(nss []core.Namespace, mounts []string) ([]plugin.Metric
 		tags["device"] = path.Device
 		for _, namespace := range namespaces {
 			if strings.Contains(strings.Join(namespace, "|"), "total") {
-				nspace := make([]core.NamespaceElement, len(requested["total"]))
+				nspace := make([]plugin.NamespaceElement, len(requested["total"]))
 				copy(nspace, requested["total"])
 				nspace[3].Value = path.Mountpoint
-				metrics = append(metrics, plugin.MetricType{
-					Namespace_: nspace,
-					Data_:      data.Total,
-					Tags_:      tags,
-					Timestamp_: t,
+				metrics = append(metrics, plugin.Metric{
+					Namespace: nspace,
+					Data:      data.Total,
+					Tags:      tags,
+					Timestamp: t,
 				})
 			}
 			if strings.Contains(strings.Join(namespace, "|"), "used") {
-				nspace := make([]core.NamespaceElement, len(requested["used"]))
+				nspace := make([]plugin.NamespaceElement, len(requested["used"]))
 				copy(nspace, requested["used"])
 				nspace[3].Value = path.Mountpoint
-				metrics = append(metrics, plugin.MetricType{
-					Namespace_: nspace,
-					Data_:      data.Used,
-					Tags_:      tags,
-					Timestamp_: t,
+				metrics = append(metrics, plugin.Metric{
+					Namespace: nspace,
+					Data:      data.Used,
+					Tags:      tags,
+					Timestamp: t,
 				})
 			}
 			if strings.Contains(strings.Join(namespace, "|"), "free") {
-				nspace := make([]core.NamespaceElement, len(requested["free"]))
+				nspace := make([]plugin.NamespaceElement, len(requested["free"]))
 				copy(nspace, requested["free"])
 				nspace[3].Value = path.Mountpoint
-				metrics = append(metrics, plugin.MetricType{
-					Namespace_: nspace,
-					Data_:      data.Free,
-					Tags_:      tags,
-					Timestamp_: t,
+				metrics = append(metrics, plugin.Metric{
+					Namespace: nspace,
+					Data:      data.Free,
+					Tags:      tags,
+					Timestamp: t,
 				})
 			}
 			if strings.Contains(strings.Join(namespace, "|"), "percent") {
-				nspace := make([]core.NamespaceElement, len(requested["percent"]))
+				nspace := make([]plugin.NamespaceElement, len(requested["percent"]))
 				copy(nspace, requested["percent"])
 				nspace[3].Value = path.Mountpoint
-				metrics = append(metrics, plugin.MetricType{
-					Namespace_: nspace,
-					Data_:      data.UsedPercent,
-					Tags_:      tags,
-					Timestamp_: t,
+				metrics = append(metrics, plugin.Metric{
+					Namespace: nspace,
+					Data:      data.UsedPercent,
+					Tags:      tags,
+					Timestamp: t,
 				})
 			}
 		}
@@ -129,25 +130,26 @@ func getDiskUsageMetrics(nss []core.Namespace, mounts []string) ([]plugin.Metric
 	return metrics, nil
 }
 
-func getDiskUsageMetricTypes() []plugin.MetricType {
-	var mts []plugin.MetricType
-	mts = append(mts, plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "psutil", "disk").
+func getDiskUsageMetricTypes() []plugin.Metric {
+	defer timeSpent(time.Now(), "getDiskUsageMetricTypes")
+	var mts []plugin.Metric
+	mts = append(mts, plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "psutil", "disk").
 			AddDynamicElement("mount_point", "Mount Point").
 			AddStaticElement("total"),
 	})
-	mts = append(mts, plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "psutil", "disk").
+	mts = append(mts, plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "psutil", "disk").
 			AddDynamicElement("mount_point", "Mount Point").
 			AddStaticElement("used"),
 	})
-	mts = append(mts, plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "psutil", "disk").
+	mts = append(mts, plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "psutil", "disk").
 			AddDynamicElement("mount_point", "Mount Point").
 			AddStaticElement("free"),
 	})
-	mts = append(mts, plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "psutil", "disk").
+	mts = append(mts, plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "psutil", "disk").
 			AddDynamicElement("mount_point", "Mount Point").
 			AddStaticElement("percent"),
 	})

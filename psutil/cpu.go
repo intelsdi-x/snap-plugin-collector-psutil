@@ -23,8 +23,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/shirou/gopsutil/cpu"
 )
 
@@ -75,8 +74,9 @@ var cpuLabels = map[string]label{
 	},
 }
 
-func cpuTimes(nss []core.Namespace) ([]plugin.MetricType, error) {
+func cpuTimes(nss []plugin.Namespace) ([]plugin.Metric, error) {
 	// gather metrics per each cpu
+	defer timeSpent(time.Now(), "cpuTimes")
 	timesCPUs, err := cpu.Times(true)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func cpuTimes(nss []core.Namespace) ([]plugin.MetricType, error) {
 		return nil, err
 	}
 
-	results := []plugin.MetricType{}
+	results := []plugin.Metric{}
 
 	for _, ns := range nss {
 		// set requested metric name from last namespace element
@@ -98,7 +98,7 @@ func cpuTimes(nss []core.Namespace) ([]plugin.MetricType, error) {
 			for _, timesCPU := range timesCPUs {
 				// prepare namespace copy to update value
 				// this will allow to keep namespace as dynamic (name != "")
-				dyn := make([]core.NamespaceElement, len(ns))
+				dyn := make([]plugin.NamespaceElement, len(ns))
 				copy(dyn, ns)
 				dyn[3].Value = timesCPU.CPU
 				// get requested metric value
@@ -106,11 +106,11 @@ func cpuTimes(nss []core.Namespace) ([]plugin.MetricType, error) {
 				if err != nil {
 					return nil, err
 				}
-				metric := plugin.MetricType{
-					Namespace_: dyn,
-					Data_:      val,
-					Timestamp_: time.Now(),
-					Unit_:      cpuLabels[metricName].unit,
+				metric := plugin.Metric{
+					Namespace: dyn,
+					Data:      val,
+					Timestamp: time.Now(),
+					Unit:      cpuLabels[metricName].unit,
 				}
 				results = append(results, metric)
 			}
@@ -126,11 +126,11 @@ func cpuTimes(nss []core.Namespace) ([]plugin.MetricType, error) {
 			if err != nil {
 				return nil, err
 			}
-			metric := plugin.MetricType{
-				Namespace_: ns,
-				Data_:      val,
-				Timestamp_: time.Now(),
-				Unit_:      cpuLabels[metricName].unit,
+			metric := plugin.Metric{
+				Namespace: ns,
+				Data:      val,
+				Timestamp: time.Now(),
+				Unit:      cpuLabels[metricName].unit,
 			}
 			results = append(results, metric)
 		}
@@ -177,21 +177,22 @@ func getCPUTimeValue(stat *cpu.TimesStat, name string) (float64, error) {
 	}
 }
 
-func getCPUTimesMetricTypes() ([]plugin.MetricType, error) {
+func getCPUTimesMetricTypes() ([]plugin.Metric, error) {
+	defer timeSpent(time.Now(), "getCPUTimesMetricTypes")
 	//passing true to CPUTimes indicates per CPU
-	mts := []plugin.MetricType{}
+	mts := []plugin.Metric{}
 	switch runtime.GOOS {
 	case "linux", "darwin":
 		for k, label := range cpuLabels {
-			mts = append(mts, plugin.MetricType{
-				Namespace_:   core.NewNamespace("intel", "psutil", "cpu").AddDynamicElement("cpu_id", "physical cpu id").AddStaticElement(k),
-				Description_: label.description,
-				Unit_:        label.unit,
+			mts = append(mts, plugin.Metric{
+				Namespace:   plugin.NewNamespace("intel", "psutil", "cpu").AddDynamicElement("cpu_id", "physical cpu id").AddStaticElement(k),
+				Description: label.description,
+				Unit:        label.unit,
 			})
-			mts = append(mts, plugin.MetricType{
-				Namespace_:   core.NewNamespace("intel", "psutil", "cpu", "cpu-total").AddStaticElement(k),
-				Description_: label.description,
-				Unit_:        label.unit,
+			mts = append(mts, plugin.Metric{
+				Namespace:   plugin.NewNamespace("intel", "psutil", "cpu", "cpu-total").AddStaticElement(k),
+				Description: label.description,
+				Unit:        label.unit,
 			})
 		}
 	default:
