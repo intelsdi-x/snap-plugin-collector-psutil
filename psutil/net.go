@@ -22,8 +22,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/core"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/shirou/gopsutil/net"
 )
 
@@ -62,7 +61,8 @@ var netIOCounterLabels = map[string]label{
 	},
 }
 
-func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
+func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
+	defer timeSpent(time.Now(), "netIOCounters")
 	// gather accumulated metrics for all interfaces
 	netsAll, err := net.IOCounters(false)
 	if err != nil {
@@ -75,7 +75,7 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 		return nil, err
 	}
 
-	results := []plugin.MetricType{}
+	results := []plugin.Metric{}
 
 	for _, ns := range nss {
 		// set requested metric name from last namespace element
@@ -85,7 +85,7 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 			for _, net := range netsNic {
 				// prepare namespace copy to update value
 				// this will allow to keep namespace as dynamic (name != "")
-				dyn := make([]core.NamespaceElement, len(ns))
+				dyn := make([]plugin.NamespaceElement, len(ns))
 				copy(dyn, ns)
 				dyn[3].Value = net.Name
 				// get requested metric value
@@ -94,11 +94,11 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 					return nil, err
 				}
 
-				metric := plugin.MetricType{
-					Namespace_: dyn,
-					Data_:      val,
-					Timestamp_: time.Now(),
-					Unit_:      netIOCounterLabels[metricName].unit,
+				metric := plugin.Metric{
+					Namespace: dyn,
+					Data:      val,
+					Timestamp: time.Now(),
+					Unit:      netIOCounterLabels[metricName].unit,
 				}
 				results = append(results, metric)
 			}
@@ -115,11 +115,11 @@ func netIOCounters(nss []core.Namespace) ([]plugin.MetricType, error) {
 				return nil, err
 			}
 
-			metric := plugin.MetricType{
-				Namespace_: ns,
-				Data_:      val,
-				Timestamp_: time.Now(),
-				Unit_:      netIOCounterLabels[metricName].unit,
+			metric := plugin.Metric{
+				Namespace: ns,
+				Data:      val,
+				Timestamp: time.Now(),
+				Unit:      netIOCounterLabels[metricName].unit,
 			}
 			results = append(results, metric)
 		}
@@ -160,22 +160,23 @@ func getNetIOCounterValue(stat *net.IOCountersStat, name string) (uint64, error)
 	}
 }
 
-func getNetIOCounterMetricTypes() ([]plugin.MetricType, error) {
-	mts := make([]plugin.MetricType, 0)
+func getNetIOCounterMetricTypes() ([]plugin.Metric, error) {
+	defer timeSpent(time.Now(), "getNetIOCounterMetricTypes")
+	mts := make([]plugin.Metric, 0)
 
 	for name, label := range netIOCounterLabels {
 		//metrics which are the sum for all available nics
-		mts = append(mts, plugin.MetricType{
-			Namespace_:   core.NewNamespace("intel", "psutil", "net", "all", name),
-			Description_: label.description,
-			Unit_:        label.unit,
+		mts = append(mts, plugin.Metric{
+			Namespace:   plugin.NewNamespace("intel", "psutil", "net", "all", name),
+			Description: label.description,
+			Unit:        label.unit,
 		})
 		//dynamic metrics representing any nic
-		mts = append(mts, plugin.MetricType{
-			Namespace_: core.NewNamespace("intel", "psutil", "net").
+		mts = append(mts, plugin.Metric{
+			Namespace: plugin.NewNamespace("intel", "psutil", "net").
 				AddDynamicElement("nic_id", "network interface id").AddStaticElement(name),
-			Description_: label.description,
-			Unit_:        label.unit,
+			Description: label.description,
+			Unit:        label.unit,
 		})
 	}
 

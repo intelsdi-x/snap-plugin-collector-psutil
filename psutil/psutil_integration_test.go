@@ -25,44 +25,43 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/core"
-	"github.com/intelsdi-x/snap/core/ctypes"
-
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 )
 
 func TestPsutilCollectMetrics(t *testing.T) {
 	Convey("psutil collector", t, func() {
 		p := &Psutil{}
 		Convey("collect metrics", func() {
-			cfg := plugin.NewPluginConfigType()
-			cfg.AddItem("mount_points", ctypes.ConfigValueStr{"/|/dev|/run"})
-			mts := []plugin.MetricType{
-				plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "load", "load1"),
-					Config_:    cfg.ConfigDataNode,
+			config := plugin.Config{
+				"mount_points": "/|/dev|/run",
+			}
+			mts := []plugin.Metric{
+				plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "load", "load1"),
+					Config:    config,
 				},
-				plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "load", "load5"),
-					Config_:    cfg.ConfigDataNode,
+				plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "load", "load5"),
+					Config:    config,
 				},
-				plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "load", "load15"),
-					Config_:    cfg.ConfigDataNode,
+				plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "load", "load15"),
+					Config:    config,
 				},
-				plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "vm", "total"),
-					Config_:    cfg.ConfigDataNode,
+				plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "vm", "total"),
+					Config:    config,
 				},
-				plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "disk", "used"),
-					Config_:    cfg.ConfigDataNode,
+				plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "disk", "used"),
+					Config:    config,
 				},
 			}
 			if runtime.GOOS != "darwin" {
-				mts = append(mts, plugin.MetricType{
-					Namespace_: core.NewNamespace("intel", "psutil", "cpu", "cpu0", "user"),
+				mts = append(mts, plugin.Metric{
+					Namespace: plugin.NewNamespace("intel", "psutil", "cpu", "cpu0", "user"),
 				})
 			}
 			metrics, err := p.CollectMetrics(mts)
@@ -70,7 +69,7 @@ func TestPsutilCollectMetrics(t *testing.T) {
 			So(metrics, ShouldNotBeNil)
 		})
 		Convey("get metric types", func() {
-			mts, err := p.GetMetricTypes(plugin.ConfigType{})
+			mts, err := p.GetMetricTypes(plugin.Config{})
 			So(err, ShouldBeNil)
 			So(mts, ShouldNotBeNil)
 		})

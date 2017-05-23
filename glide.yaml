@@ -1,11 +1,6 @@
 package: github.com/intelsdi-x/snap-plugin-collector-psutil
 import:
-- package: github.com/intelsdi-x/snap
-  version: ^1.0.0
-  subpackages:
-  - control/plugin
-  - control/plugin/cpolicy
-  - core
+- package: github.com/intelsdi-x/snap-plugin-lib-go
 - package: github.com/shirou/gopsutil
   subpackages:
   - cpu
