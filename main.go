@@ -26,7 +26,7 @@ import (
 
 const (
 	pluginName    = "psutil"
-	pluginVersion = 11
+	pluginVersion = 12
 )
 
 // plugin bootstrap
