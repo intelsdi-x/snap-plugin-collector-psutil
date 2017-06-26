@@ -126,6 +126,7 @@ Namespace | Description (optional)
 /intel/psutil/vm/wired | memory that is marked to always stay in RAM. It is never moved to disk
 
 *Please note that there is no possibility to request specific instance of dynamic disk metric passing it via requested metric in task manifest. I collect metrics based on configured mount points
+All collected network counters contains information about the hardware address (tag -> hardware_address) and the MTU (tag -> mtu).
 
 ### Examples
 This is an example running psutil and writing data to a file. It is assumed that you are using the latest Snap binary and plugins.

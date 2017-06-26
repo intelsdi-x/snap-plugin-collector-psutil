@@ -20,10 +20,12 @@ package psutil
 
 import (
 	"fmt"
+	"net"
+	"strconv"
 	"time"
 
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
-	"github.com/shirou/gopsutil/net"
+	psutilnet "github.com/shirou/gopsutil/net"
 )
 
 var netIOCounterLabels = map[string]label{
@@ -64,13 +66,13 @@ var netIOCounterLabels = map[string]label{
 func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 	defer timeSpent(time.Now(), "netIOCounters")
 	// gather accumulated metrics for all interfaces
-	netsAll, err := net.IOCounters(false)
+	netsAll, err := psutilnet.IOCounters(false)
 	if err != nil {
 		return nil, err
 	}
 
 	// gather metrics per nic
-	netsNic, err := net.IOCounters(true)
+	netsNic, err := psutilnet.IOCounters(true)
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +84,18 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 		metricName := ns.Element(len(ns) - 1).Value
 		// check if requested metric is dynamic (requesting metrics for all nics)
 		if ns[3].Value == "*" {
-			for _, net := range netsNic {
+			for _, nic := range netsNic {
 				// prepare namespace copy to update value
 				// this will allow to keep namespace as dynamic (name != "")
 				dyn := make([]plugin.NamespaceElement, len(ns))
 				copy(dyn, ns)
-				dyn[3].Value = net.Name
+				dyn[3].Value = nic.Name
 				// get requested metric value
-				val, err := getNetIOCounterValue(&net, metricName)
+				val, err := getNetIOCounterValue(&nic, metricName)
+				if err != nil {
+					return nil, err
+				}
+				tags, err := getInterfaceConfiguration(nic.Name)
 				if err != nil {
 					return nil, err
 				}
@@ -98,6 +104,7 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 					Namespace: dyn,
 					Data:      val,
 					Timestamp: time.Now(),
+					Tags:      tags,
 					Unit:      netIOCounterLabels[metricName].unit,
 				}
 				results = append(results, metric)
@@ -115,9 +122,15 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 				return nil, err
 			}
 
+			tags, err := getInterfaceConfiguration(ns[3].Value)
+			if err != nil {
+				return nil, err
+			}
+
 			metric := plugin.Metric{
 				Namespace: ns,
 				Data:      val,
+				Tags:      tags,
 				Timestamp: time.Now(),
 				Unit:      netIOCounterLabels[metricName].unit,
 			}
@@ -128,7 +141,7 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 	return results, nil
 }
 
-func findNetIOStats(nets []net.IOCountersStat, name string) *net.IOCountersStat {
+func findNetIOStats(nets []psutilnet.IOCountersStat, name string) *psutilnet.IOCountersStat {
 	for _, net := range nets {
 		if net.Name == name {
 			return &net
@@ -137,7 +150,7 @@ func findNetIOStats(nets []net.IOCountersStat, name string) *net.IOCountersStat 
 	return nil
 }
 
-func getNetIOCounterValue(stat *net.IOCountersStat, name string) (uint64, error) {
+func getNetIOCounterValue(stat *psutilnet.IOCountersStat, name string) (uint64, error) {
 	switch name {
 	case "bytes_sent":
 		return stat.BytesSent, nil
@@ -174,11 +187,23 @@ func getNetIOCounterMetricTypes() ([]plugin.Metric, error) {
 		//dynamic metrics representing any nic
 		mts = append(mts, plugin.Metric{
 			Namespace: plugin.NewNamespace("intel", "psutil", "net").
-				AddDynamicElement("nic_id", "network interface id").AddStaticElement(name),
+				AddDynamicElement("interface_name", "network interface name").AddStaticElement(name),
 			Description: label.description,
 			Unit:        label.unit,
 		})
 	}
 
 	return mts, nil
+}
+
+func getInterfaceConfiguration(ifaceName string) (map[string]string, error) {
+
+	interfaceConfig, err := net.InterfaceByName(ifaceName)
+	if err != nil {
+		return nil, err
+	}
+	tags := make(map[string]string)
+	tags["hardware_addr"] = string(interfaceConfig.HardwareAddr)
+	tags["mtu"] = strconv.Itoa(interfaceConfig.MTU)
+	return tags, nil
 }
