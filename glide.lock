@@ -1,5 +1,5 @@
 hash: 09c418cddfe76f4509739130c830fd51fe5289a5fb26bd999171dc83e69f0ac2
-updated: 2017-05-15T08:03:39.934788184-07:00
+updated: 2017-07-10T08:34:42.971358475+02:00
 imports:
 - name: github.com/go-ole/go-ole
   version: de8695c8edbf8236f30d6e1376e20b198a028d42
@@ -10,7 +10,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/intelsdi-x/snap-plugin-lib-go
-  version: d1d32a057c0c23169796016876ce89634b2c012f
+  version: 25d0f6c1ebd320c49b1a8cb2c2b32c6091c43530
   subpackages:
   - v1/plugin
   - v1/plugin/rpc
