@@ -85,7 +85,6 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 		// check if requested metric is dynamic (requesting metrics for all nics)
 		if ns[3].Value == "*" {
 			for _, nic := range netsNic {
-
 				// prepare namespace copy to update value
 				// this will allow to keep namespace as dynamic (name != "")
 				dyn := make([]plugin.NamespaceElement, len(ns))
@@ -113,10 +112,8 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 		} else {
 			stats := append(netsAll, netsNic...)
 
-			fmt.Printf("stats: %#v \n \n \n", stats)
 			// find stats for interface name or all nics
 			stat := findNetIOStats(stats, ns[3].Value)
-			fmt.Printf("stat: %#v \n \n \n ", stat)
 			if stat == nil {
 				return nil, fmt.Errorf("Requested interface %s not found", ns[3].Value)
 			}
@@ -144,8 +141,6 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 				Unit:      netIOCounterLabels[metricName].unit,
 			}
 			results = append(results, metric)
-
-			fmt.Printf("results: %#v \n ", results)
 		}
 	}
 

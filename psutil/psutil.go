@@ -128,7 +128,7 @@ func (p *Psutil) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 }
 
 func getMountpoints(cfg plugin.Config) []string {
-	if mp, err := cfg.GetString("mount_points"); err != nil {
+	if mp, err := cfg.GetString("mount_points"); err == nil {
 		if mp == "*" {
 			return []string{"all"}
 		}
