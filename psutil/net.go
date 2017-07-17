@@ -111,6 +111,7 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 			}
 		} else {
 			stats := append(netsAll, netsNic...)
+
 			// find stats for interface name or all nics
 			stat := findNetIOStats(stats, ns[3].Value)
 			if stat == nil {
@@ -122,9 +123,14 @@ func netIOCounters(nss []plugin.Namespace) ([]plugin.Metric, error) {
 				return nil, err
 			}
 
-			tags, err := getInterfaceConfiguration(ns[3].Value)
-			if err != nil {
-				return nil, err
+			var tags map[string]string
+
+			//for "all" interface there is no configuration
+			if ns[3].Value != "all" {
+				tags, err = getInterfaceConfiguration(ns[3].Value)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			metric := plugin.Metric{

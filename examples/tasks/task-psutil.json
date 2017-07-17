@@ -12,6 +12,7 @@
         "/intel/psutil/load/load15": {},
         "/intel/psutil/vm/available": {},
         "/intel/psutil/vm/free": {},
+        "/intel/psutil/disk/*/total": {},
         "/intel/psutil/vm/used": {},
         "/intel/psutil/cpu/*/user": {},
         "/intel/psutil/net/all/bytes_sent": {}
